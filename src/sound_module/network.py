@@ -1,4 +1,4 @@
-from sound_module.streams import Reverse, Delay, Module
+from sound_module.modules import Reverse, Delay, Module
 from collections import OrderedDict
     
 class NetworkGraph():
@@ -37,7 +37,8 @@ class NetworkGraph():
         return self.__modules.keys().index(module_id)
     
 class Network(Module):
-    def __init__(self, graph):
+    def __init__(self, graph, module_id = None):
+        super(Network, self).__init__(module_id)
         self.__graph = graph
     
     def process(self, inputs):
@@ -56,6 +57,7 @@ class Network(Module):
         return outputs[output_module]
         
     def __calculate_outputs(self, modules, input_value):
+        #todo modules empty!
         input_module = modules[0]
         values = {input_module.get_id(): input_module.process((input_value, ))}
         for module in modules[1:]:

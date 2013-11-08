@@ -1,4 +1,8 @@
 class Module(object):
+    @classmethod
+    def from_id(cls, module_id):
+        return cls(module_id)
+    
     def __init__(self, module_id):
         self.__id = module_id
     
