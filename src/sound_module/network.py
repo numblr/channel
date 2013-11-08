@@ -1,6 +1,9 @@
-from sound_module.modules import Reverse, Delay, Module
+from sound_module.modules import Module
 from collections import OrderedDict
-    
+import logging
+
+_log = logging.getLogger(__name__)
+
 class NetworkGraph():
     def __init__(self):
         self.__modules = OrderedDict()
@@ -10,16 +13,22 @@ class NetworkGraph():
         module_id = module.get_id()
         if module_id in self.__modules:
             raise ValueError("Module with name %s is already defined", module.get_id()) 
+        
         self.__modules[module_id] = module
+        
+        _log.info("Added module %s", module_id)
         
     def add_connection(self, from_module, to_module):
         if self.__module_order(from_module) > self.__module_order(to_module):
             raise ValueError("""Modules can be only connected in the order of their definition: 
                 Tried to connect %s to %s""", from_module, to_module)
+        
         if to_module in self.__connections:
             self.__connections[to_module] = self.__connections[to_module] + (from_module, )
         else:
             self.__connections[to_module] = (from_module, )
+        
+        _log.info("Added connection from %s to %s", from_module, to_module)
             
     def get_inputs(self, module):
         if not module.get_id() in self.__connections:
@@ -37,41 +46,43 @@ class NetworkGraph():
         return self.__modules.keys().index(module_id)
     
 class Network(Module):
-    def __init__(self, graph, module_id = None):
-        super(Network, self).__init__(module_id)
+    def __init__(self, graph, value = None, module_id = None):
+        super(Network, self).__init__(value, module_id)
         self.__graph = graph
     
     def process(self, inputs):
-        result = [self.__process_single(inp) for inp in inputs]
+        modules = self.__graph.get_modules()
+        if not modules:
+            return ""
+        
+        result = self.__process_inputs(modules, inputs)
 
-        while result[-1] and len(result) < len(inputs) * 16:
-            result.append(self.__process_single(""))
-                          
         return " ".join(result).strip()
     
-    def __process_single(self, input_value):
-        modules = self.__graph.get_modules()
-        outputs = self.__calculate_outputs(modules, input_value)
-        output_module = modules[-1].get_id()
+    def __process_inputs(self, modules, inputs):
+        result = []
+        for input_value in inputs :
+            modules = self.__process_single(modules, input_value)
+            result.append(modules[-1].get_value())
         
-        return outputs[output_module]
-        
-    def __calculate_outputs(self, modules, input_value):
-        #todo modules empty!
+        while result[-1] and len(result) < len(inputs) * 16:
+            modules = self.__process_single(modules, "")
+            result.append(modules[-1].get_value())
+                          
+        return result
+    
+    def __process_single(self, modules, input_value):
         input_module = modules[0]
-        values = {input_module.get_id(): input_module.process((input_value, ))}
+        processed = OrderedDict()
+        processed[input_module.get_id()] = input_module.process((input_value, ))
         for module in modules[1:]:
             inputs = self.__graph.get_inputs(module)
-            input_values = [values[i.get_id()] for i in inputs]
-            values[module.get_id()] = module.process(input_values)
-            
-        return values
+            input_values = [processed[i.get_id()].get_value() for i in inputs]
+            processed[module.get_id()] = module.process(input_values)
         
-if __name__ == "__main__":
-    inputs = ("Hello", "World")
-    net = NetworkGraph()
-    net.add_module(Reverse("A"))
-    net.add_module(Delay("B"))
-    net.add_connection("A", "B")
+        return processed.values()
     
-    print(Network(net).process(inputs))
+    
+    
+    
+    
