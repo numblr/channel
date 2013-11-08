@@ -1,27 +1,23 @@
-class Operation(object):
+class Module(object):
+    def __init__(self, module_id):
+        self.__id = module_id
+    
+    def get_id(self):
+        return self.__id
+    
     def process(self, inputs):
         raise NotImplementedError
 
-class Input(Operation):
-    def __init__(self, values):
-        self.__values = values
-        self.__count = 0
-    
-    def process(self, inputs):
-        if self.__count < len(self.__values):
-            value = self.__values[self.__count]
-            self.__count += 1
-            
-            return value
+class Adder(Module):
+    def __init__(self, module_id = None):
+        super(Adder, self).__init__(module_id)
         
-        return ""
-    
-class Adder(Operation):
     def process(self, inputs):
         return "".join(inputs)
 
-class Delay(Operation):
-    def __init__(self):
+class Delay(Module):
+    def __init__(self, module_id):
+        super(Delay, self).__init__(module_id)
         self.__previous = "Hello"
 
     def process(self, inputs):
@@ -30,16 +26,18 @@ class Delay(Operation):
         
         return previous
     
-class Echo(Operation):
+class Echo(Module):
+    def __init__(self, module_id):
+        super(Echo, self).__init__(module_id)
+
     def process(self, inputs):
         added_inputs = Adder().process(inputs)
         
         return added_inputs + added_inputs
             
-class Reverse(Operation):
+class Reverse(Module):
+    def __init__(self, module_id):
+        super(Reverse, self).__init__(module_id)
+
     def process(self, inputs):
         return Adder().process(inputs)[::-1]
-        
-class Noop(Operation):
-    def process(self, inputs):
-        return Adder().process(inputs)
