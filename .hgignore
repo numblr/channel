@@ -1,0 +1,11 @@
+# use glob syntax.
+syntax: glob
+*.elc
+*.pyc
+*.bfproject
+*.kpf
+*.pydevproject
+*.project
+*.metadata
+
+templates_compiled/**
