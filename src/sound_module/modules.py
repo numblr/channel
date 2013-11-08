@@ -1,58 +1,89 @@
 class Module(object):
-    @classmethod
-    def from_id(cls, module_id):
-        return cls(module_id = module_id)
+    """Module is the base class for processing units for strings.
     
-    def __init__(self, value, module_id):
+    A Module instance holds the module's current value. Subclasses of Module
+    must implement the process method that creates a new instance which holds the
+    processed value depending on the given input.
+     
+    Module is not intended to be instantiated. Instances of subclasses of Module
+    should be immutable.
+    
+    """
+    @classmethod
+    def create(cls):
+        return cls()
+    
+    def __init__(self, value = None):
+        """Creates a new instance with a given value or None."""
         self.__value = value
-        self.__id = module_id
     
     def get_value(self):
+        """Returns the current value of the Module"""
         return self.__value
     
-    def get_id(self):
-        return self.__id
-    
     def process(self, inputs):
+        """Creates a new instance of the class holding a new value calculated from the given inputs.
+        
+        Subclasses of Module must implement this method.
+        
+        """
         raise NotImplementedError
 
-class Adder(Module):
-    def __init__(self, value = None, module_id = None):
-        super(Adder, self).__init__(value, module_id)
+class Sum(Module):
+    def __init__(self, value = None):
+        super(Sum, self).__init__(value)
         
     def process(self, inputs):
-        new_value = "".join(inputs)
-        
-        return Adder(new_value, self.get_id())
+        """Returns a new Sum instance with the concatenated input strings."""
+        return Sum("".join(inputs))
 
 class Delay(Module):
     __INITIAL_VALUE = "Hello"
     
-    def __init__(self, value = None, previous = None, module_id = None):
-        super(Delay, self).__init__(value, module_id)
+    def __init__(self, value = None, previous = None):
+        """Creates a new Delay instance with current and previous value.
+        
+        The default value for value is None and for previous is Delay.__INITIAL_VALUE.
+        """
+        super(Delay, self).__init__(value)
         self.__previous = previous if previous != None else Delay.__INITIAL_VALUE
 
+
+
     def process(self, inputs):
-        previous = self.__previous
-        added_input = Adder().process(inputs).get_value()
+        """Returns a new Delay instance that holds the summed previous input values.
         
-        return Delay(previous, added_input, self.get_id())
+        The previous input values are the values with which the process method was
+        called that created the current instance, or the value specified at construction.
+        
+        """
+        previous = self.__previous
+        added_input = _sum(inputs)
+        
+        return Delay(previous, added_input)
     
 class Echo(Module):
-    def __init__(self, value = None, module_id = None):
-        super(Echo, self).__init__(value, module_id)
+    def __init__(self, value = None):
+        super(Echo, self).__init__(value)
 
     def process(self, inputs):
-        added_inputs = Adder().process(inputs).get_value()
+        """Returns a new Echo instance with the summed input string concatenated with itself."""
+        added_inputs = _sum(inputs)
         new_value = added_inputs + added_inputs
         
-        return Echo(new_value, self.get_id())
+        return Echo(new_value)
             
 class Reverse(Module):
-    def __init__(self, value = None, module_id = None):
-        super(Reverse, self).__init__(value, module_id)
+    def __init__(self, value = None):
+        super(Reverse, self).__init__(value)
 
     def process(self, inputs):
-        new_value = Adder().process(inputs).get_value()[::-1]
+        """Returns a new Reverse instance with the summed input string reversed."""
+        new_value = _sum(inputs)[::-1]
         
-        return Reverse(new_value, self.get_id())
+        return Reverse(new_value)
+    
+__SUM = Sum()
+     
+def _sum(self, inputs):
+    return __SUM.process(inputs).get_value()
