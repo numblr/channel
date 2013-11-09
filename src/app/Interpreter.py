@@ -61,8 +61,9 @@ class Interpreter(object):
         if not command in Interpreter.__COMMANDS:
             raise ValueError("There is no command with name: \"{0}\".\nChoose from: {1}".format(command, Interpreter.__COMMANDS.keys()))
         
+        arguments = input_strings[1:]
         
-        return Interpreter.__COMMANDS[command](self.__state, *input_strings[1:])
+        return Interpreter.__COMMANDS[command](self.__state, *arguments)
         
 class InterpreterState():
     __BASE_FACTORIES = {"delay": Delay.create,
