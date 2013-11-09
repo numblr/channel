@@ -1,4 +1,4 @@
-from app.Interpreter import Interpreter, EXIT
+from app.interpreter import Interpreter, EXIT
 import logging
 
 _log = logging.getLogger(__name__)
