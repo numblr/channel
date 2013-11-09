@@ -7,5 +7,6 @@ syntax: glob
 *.pydevproject
 *.project
 *.metadata
+*.orig
 
 templates_compiled/**

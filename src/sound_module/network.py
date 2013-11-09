@@ -1,139 +1,169 @@
-from sound_module.modules import Module
+from sound_module.modules import Module, Delay, Echo, Sum, Reverse
 from collections import OrderedDict
 import logging
 
 _log = logging.getLogger(__name__)
 
-class NetworkGraph():
+class NetworkFactory():
     """Specifies an ordered list of named Modules and directed connections between them.
     
-    The NetworkGraph can be built by adding new modules with a unique name and
+    The NetworkFactory can be built by adding new modules with a unique name and
     specifing connections between already added modules by specifing their names.
     
-    The order of the modules in the NetworkGraph is the order in which they
+    The order of the modules in the NetworkFactory is the order in which they
     where added. Connections can only be created from Module A to B if A < B,
     that is, if A was added before B. In particular circles are not permited.
     
     """
-    def __init__(self, module = None, connections = None):
-        self.__modules = module if module else OrderedDict()
+    __BASE_FACTORIES = {"delay": Delay.create,
+                        "echo": Echo.create,
+                        "noop": Sum.create,
+                        "reverse": Reverse.create
+                        }
+    
+    def __init__(self, modules = None, connections = None, factories = None):
+        self.__modules = modules if modules else ()
         self.__connections = connections if connections else {}
+        self.__factories = factories if factories else NetworkFactory.__BASE_FACTORIES.copy()
         
-    def add_module(self, module_id, module):
-        """Adds the given module with the given id to the NetworkGraph.
+    def add_module(self, module_id, module_type):
+        """Adds the given module_type with the given id to the NetworkFactory.
         
-        If the NetworkGraph already contains a module with the given name, a
+        If the NetworkFactory already contains a module_type with the given name, a
         ValueError is raised.
         """
+        if module_type not in self.__factories:
+            raise ValueError("There is no module type with name \"{0}\". Choose from: {1} ".format(module_type, self.__factories.keys())) 
+
         if module_id in self.__modules:
-            raise ValueError("Module with name \"{0}\" is already defined".format(module.get_id())) 
+            raise ValueError("Module with name \"{0}\" is already defined".format(module_type.get_id())) 
         
-        self.__modules[module_id] = module
+        self.__modules = self.__modules + ((module_id, module_type), )
         
-        _log.info("Added module %s", module_id)
+        _log.info("Added module with name %s", module_id)
         
     def add_connection(self, from_module, to_module):
-        """Adds a connection from from_module to to_module to the NetworkGraph.
+        """Adds a connection from from_module to to_module to the NetworkFactory.
         
-        If the NetworkGraph either of them was not yet added to the NetworkGraph
-        or if the from_module was added after to_module to the NetworkGraph, a
+        If the NetworkFactory either of them was not yet added to the NetworkFactory
+        or if the from_module was added after to_module to the NetworkFactory, a
         ValueError is raised.
         """
-        if not from_module in self.__modules or not to_module in self.__modules:
-            raise ValueError("""Modules must be added to before they can be connected: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self.get_modules().keys()))
+        available_modules_ids = self.available_modules_ids()
+        if from_module not in available_modules_ids or to_module not in available_modules_ids:
+            raise ValueError("""Modules must be added to before they can be connected: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self._available_modules_ids()))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
-            raise ValueError("""Modules can be only connected in the order of their definition: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self.get_modules().keys()))
+            raise ValueError("""Modules can be only connected in the order of their definition: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self.available_modules_ids()))
         
         if to_module in self.__connections:
-            self.__connections[to_module] = self.__connections[to_module] + (from_module, )
+            self.__connections[to_module] += (from_module, )
         else:
             self.__connections[to_module] = (from_module, )
         
         _log.info("Added connection from %s to %s", from_module, to_module)
             
-    def get_input_modules(self, module_id):
-        """Returns the names of the modules that act as input to the module with the given module_id"""
-        if not module_id in self.__connections:
-            return ()
-        
-        return self.__connections[module_id]
-        
-    def get_module(self, module_id):
-        """Returns the module that was added with the given module_id"""
-        return self.__modules[module_id]
-    
-    def get_modules(self):
-        """Returns a copy of the ordered dictionary containing the modules by their names."""
-        return self.__modules.copy()
-    
-    def copy(self):
-        return NetworkGraph(self.__modules.copy(), self.__connections.copy())
-    
     def __module_order(self, module_id):
-        return self.__modules.keys().index(module_id)
+        return self.available_modules_ids().index(module_id)
+        
+    def create(self):
+        return self.__create(self.__modules, self.__connections, self.__factories)
+    
+    def __create(self, modules, connections, factories):
+        modules_by_id = [(id_, self.__module_from_type(type_)) for id_, type_ in modules]
+        
+        return Network(modules_by_id, connections.copy())
+
+    def __module_from_type(self, module_type):
+        module_factory = self.__factories[module_type]
+        
+        return module_factory()
+        
+    def available_module_types(self):
+        return self.__factories.viewkeys()
+    
+    def available_modules_ids(self):
+        return [id_ for id_, type_ in self.__modules]
+    
+    def define_as_module(self, module_type):
+        if module_type in self.__factories:
+            raise ValueError("Module type with name \"{0}\" is already defined".format(module_type.get_id())) 
+            
+        factory = self.__create_network_factory(self.__modules, self.__connections, self.__factories)
+        self.__factories[module_type] = factory
+        self.__reset()
+        
+        _log.info("Created module type %s", module_type)
+        
+    def __create_network_factory(self, modules, connections):
+        factories = {type_: factory for type_, factory in self.__factories if type_ in modules.values()}
+        def factory():
+            return self.__create(modules, connections, factories)
+        
+        return factory
+    
+    def __reset(self):
+        self.__modules = OrderedDict()
+        self.__connections = {}
     
 class Network(Module):
     """Network is a composite module for string processing.
     
-    The structure of a Network module is defined by a NetworkGraph, which
+    The structure of a Network module is defined by a NetworkFactory, which
     specifies and ordered list of modules and input-output connections between
     them.
     
     The input strings to the Network are feed to the first module in the
-    NetworkGraph one by one. A single input string is process by the modules in
+    NetworkFactory one by one. A single input string is process by the modules in
     their given order. Thus connections that lead backward in the module order,
-    and in particular circles, are not allowed in the NetworkGraph.
+    and in particular circles, are not allowed in the NetworkFactory.
     
     The output of the Network for a single input string is the value of the
-    last module in the NetworkGraph after processing. For multiple inputs the
+    last module in the NetworkFactory after processing. For multiple inputs the
     outputs are concatenated with a single separating whitespace character in
     between them. The number of words in the output string is limited to
     Network.OUTPUT_LENGHT times the number of strings in the input. If the
     Network contains no module, the output is the empty string. 
     
     """
-
-    OUTPUT_LENGHT = 16
-
-    def __init__(self, graph, value = None):
-        """Creates a new Network instance based on the specified NetworkGraph and value."""
+    
+    __SUM = Sum()
+    
+    def __init__(self, modules, connections, value = None):
+        """Network instances should be created with a NetworkFactory."""
         super(Network, self).__init__(value)
-        self.__graph = graph.copy()
+        self.__modules = modules if modules else ()
+        self.__connections = connections if connections else {}
     
-    def process(self, inputs):
-        """Returns a new Network instance holding the processed input value."""
-        return Network(self.__graph, self.__calculate_new_value(inputs))
-    
-    def __calculate_new_value(self, inputs):
-        modules = self.__graph.get_modules()
-        if not modules:
-            return ""
+    def process(self, input_):
+        """Returns a new Network instance holding the processed summed input value."""
+        if not self.__modules:
+            return _EMPTY
         
-        result = self.__process_inputs(modules, inputs)
-
-        return " ".join(result).strip()
-    
-    def __process_inputs(self, modules, inputs):
-        result = []
-        for input_value in inputs :
-            modules = self.__process_single(modules, input_value)
-            last_module = modules.values()[-1]
-            result.append(last_module.get_value())
+        summed_input = self.__SUM.process(input_).get_value()
+        processed_modules = self.__process_modules(summed_input)
+        id_, last_module = processed_modules[-1]  # @UnusedVariable
         
-        while result[-1] and len(result) < len(inputs) * Network.OUTPUT_LENGHT:
-            modules = self.__process_single(modules, "")
-            last_module = modules.values()[-1]
-            result.append(last_module.get_value())
-                          
-        return result
+        return Network(processed_modules, self.__connections, last_module.get_value())
     
-    def __process_single(self, modules, input_value):
-        first_module = modules.keys()[0]
-        modules[first_module] = modules[first_module].process((input_value, ))
-        for module in modules.keys()[1:]:
-            input_modules = self.__graph.get_input_modules(module)
-            input_values = [modules[input_id].get_value() for input_id in input_modules]
-            modules[module] = modules[module].process(input_values)
+    def __process_modules(self, input_):
+        modules = self.__modules
+        processed = OrderedDict()
         
-        return modules
+        first_module_id, first_module = modules[0]
+        processed[first_module_id] = first_module.process(input_)
+        
+        for module_id, module in modules[1:]:
+            processed = self.__process_module(module_id, module, processed)
+        
+        return processed.items()
+        
+    def __process_module(self, module_id, module, processed):
+        input_modules = self.__connections[module_id]
+        input_values = (processed[input_id].get_value() for input_id in input_modules)
+        
+        processed[module_id] = module.process(input_values)
+        
+        return processed
+    
+_EMPTY = Network(None, None, "")

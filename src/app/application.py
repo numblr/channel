@@ -16,9 +16,6 @@ def main():
             result = interpreter.parse(raw_input(">>> "))
         except ValueError as error:
             print_message(error)
-        except RuntimeError as error:
-            _log.error("Error happend: ", error)
-            return 1
         
     return 0
 
