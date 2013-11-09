@@ -1,6 +1,12 @@
 from sound_module.modules import Sum, Delay, Echo, Reverse
 from sound_module.network import NetworkGraph, Network
         
+_USAGE = """
+module <name> <operation>
+connection <name_1> <name_2>
+process <string>...
+"""        
+
 EXIT = ()
 
 def _module(state, *args):
@@ -33,6 +39,9 @@ def _define(state, *args):
 
     return 0
 
+def _help(state, *args):
+    print(_USAGE)
+
 def _exit(state, *args):
     return EXIT
 
@@ -48,6 +57,7 @@ class Interpreter(object):
                  "connect": _connect,
                  "process": _process,
                  "define": _define,
+                 "help": _help,
                  "exit": _exit
                 }
     
