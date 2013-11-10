@@ -8,19 +8,19 @@ TUPLE_INPUT = ("one", "two", "three")
 
 class ModuleTestCase():
     def test_single(self):
-        processed, value = process(self.module, STRING_INPUT)
+        processed, output = process(self.module, STRING_INPUT)
 
-        self.assertEquals(value, self.expected_string_input)
+        self.assertEquals(output, self.expected_string_input)
 
     def test_single_list(self):
-        processed, value = process(self.module, (STRING_INPUT, ))
+        processed, output = process(self.module, (STRING_INPUT, ))
 
-        self.assertEquals(value, self.expected_string_input)
+        self.assertEquals(output, self.expected_string_input)
 
     def test_multiple(self):
-        processed, value = process(self.module, TUPLE_INPUT)
+        processed, output = process(self.module, TUPLE_INPUT)
 
-        self.assertEquals(value, self.expected_tuple_input)
+        self.assertEquals(output, self.expected_tuple_input)
         
     def test_repeated_process(self):
         for i in range(5):
@@ -28,27 +28,27 @@ class ModuleTestCase():
 
     def test_generator(self):
         input_ = (c for c in TUPLE_INPUT)
-        processed, value = process(self.module, input_)
+        processed, output = process(self.module, input_)
 
-        self.assertEquals(value, self.expected_tuple_input)
+        self.assertEquals(output, self.expected_tuple_input)
         
 class NoInputTestCase(object):
     def test_no_input(self):
         self.assertRaises(TypeError, self.module.process, None)
 
     def test_empty(self):
-        processed, value = process(self.module, "")
-        self.assertEquals(value, "")
+        processed, output = process(self.module, "")
+        self.assertEquals(output, "")
 
     def test_empty_list(self):
-        processed, value = process(self.module, ())
-        self.assertEquals(value, "")
+        processed, output = process(self.module, ())
+        self.assertEquals(output, "")
 
 class RepetitionTestCase(object):
     def test_repeated_process(self):
         for i in range(5):
-            processed, value = process(self.module, TUPLE_INPUT)
-            self.assertEquals(value, self.expected_tuple_input)
+            processed, output = process(self.module, TUPLE_INPUT)
+            self.assertEquals(output, self.expected_tuple_input)
 
     def test_consecutive_process(self):
         processed = self.module
@@ -84,17 +84,17 @@ class DelayTestCase(TestCase, ModuleTestCase):
         self.assertRaises(TypeError, self.module.process, None)
 
     def test_empty(self):
-        processed, value = process(self.module, "")
-        self.assertEquals(value, Delay.INITIAL_VALUE)
+        processed, output = process(self.module, "")
+        self.assertEquals(output, Delay.INITIAL_VALUE)
 
     def test_empty_list(self):
-        processed, value = process(self.module, ())
-        self.assertEquals(value, Delay.INITIAL_VALUE)
+        processed, output = process(self.module, ())
+        self.assertEquals(output, Delay.INITIAL_VALUE)
 
     def test_repeated_process(self):
         for i in range(5):
-            processed, value = process(self.module, TUPLE_INPUT)
-            self.assertEquals(value, Delay.INITIAL_VALUE)
+            processed, output = process(self.module, TUPLE_INPUT)
+            self.assertEquals(output, Delay.INITIAL_VALUE)
 
     def test_consecutive_process(self):
         input_ = ("t", "e", "s", "t", "", "", "", "")
@@ -111,17 +111,17 @@ class DelayTestCase(TestCase, ModuleTestCase):
     def __test_consecutive_process(self, input_, expected):
         processed = self.module
         
-        for input_value, expected_value in zip(input_, expected):
-            processed, value = process(processed, input_value)
-            self.assertEquals(value, expected_value)
+        for input_value, expected_output in zip(input_, expected):
+            processed, output = process(processed, input_value)
+            self.assertEquals(output, expected_output)
 
 class HelperFunctionsTestCase(TestCase):
     def test_process(self):
         module = Sum()
         input_ = "test"
-        processed_module, processed_value = process(module, input_)
-        self.assertEquals(processed_value, module.process(input_).get_value())
-        self.assertEquals(processed_module.process(input_).get_value(), module.process(input_).get_value())
+        processed_module, output = process(module, input_)
+        self.assertEquals(output, module.process(input_).get_output())
+        self.assertEquals(processed_module.process(input_).get_output(), module.process(input_).get_output())
     
     def test_process_sequence(self):
         module = Delay()

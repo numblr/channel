@@ -123,7 +123,7 @@ class NetworkTestCase(TestCase):
     def test_empty(self):
         empty_network = NetworkFactory().create(NetworkDefinition([]))
         
-        self.assertEquals(empty_network.process("test").get_value(), "")
+        self.assertEquals(empty_network.process("test").get_output(), "")
         
     def test_consecutive_process(self):
         input_ = ("hello", "world", "", "", "", "")

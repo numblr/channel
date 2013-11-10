@@ -135,9 +135,9 @@ class Network(Module):
     
     __SUM = Sum()
     
-    def __init__(self, modules, connections, value = None):
+    def __init__(self, modules, connections, output = None):
         """Network instances should be created from a NetworkFactory."""
-        super(Network, self).__init__(value)
+        super(Network, self).__init__(output)
         self.__modules = modules
         self.__connections = connections
     
@@ -146,11 +146,11 @@ class Network(Module):
         if not self.__modules:
             return _EMPTY
         
-        summed_input = self.__SUM.process(input_).get_value()
+        summed_input = self.__SUM.process(input_).get_output()
         processed_modules = self.__process_modules(summed_input)
         id_, last_module = processed_modules[-1]
         
-        return Network(processed_modules, self.__connections, last_module.get_value())
+        return Network(processed_modules, self.__connections, last_module.get_output())
     
     def __process_modules(self, input_):
         modules = self.__modules
@@ -166,32 +166,32 @@ class Network(Module):
         
     def __process_module(self, module_id, module, processed):
         input_modules = self.__connections[module_id]
-        input_values = (processed[input_id].get_value() for input_id in input_modules)
+        input_values = (processed[input_id].get_output() for input_id in input_modules)
         
         processed[module_id] = module.process(input_values)
         
         return processed
     
 class NameConflictError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, output):
+        self.value = output
     
     def __str__(self):
-        return repr(self.value)
+        return str(self.value)
     
 class UndefinedValueError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, output):
+        self.value = output
     
     def __str__(self):
-        return repr(self.value)
+        return str(self.value)
     
 class IllegalOrderError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, output):
+        self.value = output
     
     def __str__(self):
-        return repr(self.value)
+        return str(self.value)
 
 _EMPTY = Network(None, None, "")
 

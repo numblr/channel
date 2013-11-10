@@ -62,10 +62,10 @@ COMMANDS = {"module": _module,
 
 class ArgumentError(Exception):
     def __init__(self, value):
-        self.__value = value
+        self.value = value
         
     def __str__(self):
-        return self.__value
+        return str(self.value)
 
 _USAGE = """
 Modular string processing utility.

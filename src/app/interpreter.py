@@ -21,8 +21,8 @@ class Interpreter(object):
         return command(self.__state, *arguments) if command is not EXIT else EXIT
     
 class CommandError(Exception):
-    def __init__(self, value):
-        self.__value = value
+    def __init__(self, output):
+        self.__output = output
         
     def __str__(self):
-        return self.__value
+        return self.__output
