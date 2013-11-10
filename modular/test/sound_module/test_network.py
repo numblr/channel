@@ -1,5 +1,5 @@
-from sound_module.modules import process, Delay, Reverse, Sum
-from sound_module.network import Network, NetworkDefinition, UndefinedValueError,\
+from modular.sound_module.modules import process, Delay, Reverse, Sum
+from modular.sound_module.network import Network, NetworkDefinition, UndefinedValueError,\
     NameConflictError, IllegalOrderError, NetworkFactory
 from unittest import TestCase, main
 
@@ -92,7 +92,7 @@ class NetworkFactoryTestCase(TestCase):
         
     def test_create(self):
         network = self.factory.create(TEST_DEFINITION)
-        processed, output = process(network, "test")
+        output = network.process("test").get_output()
         
         self.assertEquals(output, "tset")
         
@@ -109,7 +109,7 @@ class NetworkFactoryTestCase(TestCase):
         
         test_network = self.factory.create(definition)
         
-        processed, output = process(test_network, "test")
+        output = test_network.process("test").get_output()
         
         self.assertEquals(output, "tset")
         

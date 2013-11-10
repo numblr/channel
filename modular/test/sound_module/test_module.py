@@ -1,5 +1,5 @@
 from unittest import TestCase, main
-from sound_module.modules import Sum, process, Echo, Reverse, Delay,\
+from modular.sound_module.modules import Sum, process, Echo, Reverse, Delay,\
     process_sequence
 from itertools import islice
 
@@ -8,17 +8,17 @@ TUPLE_INPUT = ("one", "two", "three")
 
 class ModuleTestCase():
     def test_single(self):
-        processed, output = process(self.module, STRING_INPUT)
+        output = self.module.process(STRING_INPUT).get_output()
 
         self.assertEquals(output, self.expected_string_input)
 
     def test_single_list(self):
-        processed, output = process(self.module, (STRING_INPUT, ))
+        output = self.module.process((STRING_INPUT, )).get_output()
 
         self.assertEquals(output, self.expected_string_input)
 
     def test_multiple(self):
-        processed, output = process(self.module, TUPLE_INPUT)
+        output = self.module.process(TUPLE_INPUT).get_output()
 
         self.assertEquals(output, self.expected_tuple_input)
         
@@ -28,7 +28,7 @@ class ModuleTestCase():
 
     def test_generator(self):
         input_ = (c for c in TUPLE_INPUT)
-        processed, output = process(self.module, input_)
+        output = self.module.process(input_).get_output()
 
         self.assertEquals(output, self.expected_tuple_input)
         
@@ -37,17 +37,17 @@ class NoInputTestCase(object):
         self.assertRaises(TypeError, self.module.process, None)
 
     def test_empty(self):
-        processed, output = process(self.module, "")
+        output = self.module.process("").get_output()
         self.assertEquals(output, "")
 
     def test_empty_list(self):
-        processed, output = process(self.module, ())
+        output = self.module.process(()).get_output()
         self.assertEquals(output, "")
 
 class RepetitionTestCase(object):
     def test_repeated_process(self):
         for i in range(5):
-            processed, output = process(self.module, TUPLE_INPUT)
+            output = self.module.process(TUPLE_INPUT).get_output()
             self.assertEquals(output, self.expected_tuple_input)
 
     def test_consecutive_process(self):
@@ -84,16 +84,16 @@ class DelayTestCase(TestCase, ModuleTestCase):
         self.assertRaises(TypeError, self.module.process, None)
 
     def test_empty(self):
-        processed, output = process(self.module, "")
+        output = self.module.process("").get_output()
         self.assertEquals(output, Delay.INITIAL_VALUE)
 
     def test_empty_list(self):
-        processed, output = process(self.module, ())
+        output = self.module.process(()).get_output()
         self.assertEquals(output, Delay.INITIAL_VALUE)
 
     def test_repeated_process(self):
         for i in range(5):
-            processed, output = process(self.module, TUPLE_INPUT)
+            output = self.module.process(TUPLE_INPUT).get_output()
             self.assertEquals(output, Delay.INITIAL_VALUE)
 
     def test_consecutive_process(self):
