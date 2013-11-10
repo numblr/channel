@@ -53,7 +53,7 @@ class NetworkDefinition():
             raise UndefinedValueError("{0} or {1} is not defined".format(from_module, to_module))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
-            raise IllegalOrderError("{0} was defined after {1}".format(from_module, to_module))
+            raise IllegalOrderError("{0} must have been defined before {1}".format(from_module, to_module))
         
         if to_module in self.__connections:
             self.__connections[to_module] += (from_module, )
