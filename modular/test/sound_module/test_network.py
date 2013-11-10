@@ -60,7 +60,7 @@ class NetworkDefinitionTestCase(TestCase):
         self.definition.add_module("one", "typeone")
         self.definition.add_module("two", "typetwo")
         
-        self.assertRaisesRegexp(IllegalOrderError, "two was defined after one", self.definition.add_connection, "two", "one")
+        self.assertRaisesRegexp(IllegalOrderError, "two must have been defined before one", self.definition.add_connection, "two", "one")
         
     def test_invalid_module_name_in_connection(self):
         self.definition.add_module("one", "typeone")
