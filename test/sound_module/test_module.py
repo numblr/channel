@@ -1,5 +1,7 @@
 from unittest import TestCase, main
-from sound_module.modules import Sum, process, Echo, Reverse, Delay
+from sound_module.modules import Sum, process, Echo, Reverse, Delay,\
+    process_sequence
+from itertools import islice
 
 STRING_INPUT = "test"
 TUPLE_INPUT = ("one", "two", "three")
@@ -54,25 +56,25 @@ class RepetitionTestCase(object):
             processed, value = process(processed, TUPLE_INPUT)
             self.assertEquals(value, self.expected_tuple_input)
 
-class TestSum(TestCase, ModuleTestCase, RepetitionTestCase):
+class SumTestCase(TestCase, ModuleTestCase, RepetitionTestCase):
     def setUp(self):
         self.module = Sum()
         self.expected_string_input = "test"
         self.expected_tuple_input = "onetwothree"
 
-class TestEcho(TestCase, ModuleTestCase, NoInputTestCase, RepetitionTestCase):
+class EchoTestCase(TestCase, ModuleTestCase, NoInputTestCase, RepetitionTestCase):
     def setUp(self):
         self.module = Echo()
         self.expected_string_input = "testtest"
         self.expected_tuple_input = "onetwothreeonetwothree"
 
-class TestReverse(TestCase, ModuleTestCase, NoInputTestCase, RepetitionTestCase):
+class ReverseTestCase(TestCase, ModuleTestCase, NoInputTestCase, RepetitionTestCase):
     def setUp(self):
         self.module = Reverse()
         self.expected_string_input = "tset"
         self.expected_tuple_input = "eerhtowteno"
 
-class TestDelay(TestCase, ModuleTestCase):
+class DelayTestCase(TestCase, ModuleTestCase):
     def setUp(self):
         self.module = Delay()
         self.expected_string_input = Delay.INITIAL_VALUE
@@ -112,6 +114,36 @@ class TestDelay(TestCase, ModuleTestCase):
         for input_value, expected_value in zip(input_, expected):
             processed, value = process(processed, input_value)
             self.assertEquals(value, expected_value)
-            
+
+class HelperFunctionsTestCase(TestCase):
+    def test_process(self):
+        module = Sum()
+        input_ = "test"
+        processed_module, processed_value = process(module, input_)
+        self.assertEquals(processed_value, module.process(input_).get_value())
+        self.assertEquals(processed_module.process(input_).get_value(), module.process(input_).get_value())
+    
+    def test_process_sequence(self):
+        module = Delay()
+        input_sequence = ("one", "two", "three")
+
+        output_itr = process_sequence(module, input_sequence)
+        
+        first_ten_outputs = islice(output_itr, 10)
+        expected = (Delay.INITIAL_VALUE, ) + input_sequence + ("", ) * 6
+        
+        self.assertItemsEqual(first_ten_outputs, expected)
+    
+    def test_process_sequence_multiple_inputs(self):
+        module = Delay()
+        input_sequence = (("one", "one"), ("two", "two"), ("three", "three"))
+
+        output_itr = process_sequence(module, input_sequence)
+        
+        first_ten_outputs = islice(output_itr, 10)
+        expected = [Delay.INITIAL_VALUE] + ["oneone", "twotwo", "threethree"] + [""] * 6
+        
+        self.assertItemsEqual(first_ten_outputs, expected)
+    
 if __name__ == "__main__":
     main()

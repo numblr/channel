@@ -1,3 +1,5 @@
+from itertools import chain
+
 class Module(object):
     """Module is the base class for processing units for strings.
     
@@ -84,9 +86,24 @@ class Reverse(Module):
         return Reverse(new_value)
 
 def process(module, input_):
+    """Returns the processed module and the new value resulting from the given input."""
     processed = module.process(input_)
     
-    return processed, processed.get_value() 
+    return processed, processed.get_value()
+
+def process_sequence(module, input_sequence):
+    """Returns an infinite generator of output strings for the given sequence of inputs.
+    
+    The generator contains the output values of the module if it is consecutively feed
+    with the elements from the input sequence followed by an infinte sequence of empty
+    strings.
+    
+    """
+    inputs = chain(input_sequence, iter(str, "infinite generator of empty strings"))
+    while True:
+        input_value = next(inputs)
+        module, new_value = process(module, input_value)
+        yield new_value
     
 __SUM = Sum()
      
