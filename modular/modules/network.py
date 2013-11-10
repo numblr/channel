@@ -1,8 +1,5 @@
 from collections import OrderedDict
 from modular.modules.base import Module, Delay, Echo, Sum, Reverse
-import logging
-
-_log = logging.getLogger(__name__)
 
 class NetworkDefinition():
     """Specifies an ordered list of named Modules and directed connections between them.
@@ -39,8 +36,6 @@ class NetworkDefinition():
         
         self.__modules = self.__modules + ((module_id, module_type), )
         
-        _log.info("Added module with name %s", module_id)
-        
     def add_connection(self, from_module, to_module):
         """Adds a connection from from_module to to_module to the NetworkFactory.
         
@@ -59,8 +54,6 @@ class NetworkDefinition():
             self.__connections[to_module] += (from_module, )
         else:
             self.__connections[to_module] = (from_module, )
-        
-        _log.info("Added connection from %s to %s", from_module, to_module)
             
     def __module_order(self, module_id):
         return self.available_modules_ids().index(module_id)
@@ -101,8 +94,6 @@ class NetworkFactory():
             raise NameConflictError("\"{0}\" is already defined".format(module_type))
             
         self.__factories[module_type] = self.__create_network_factory(network_definition)
-        
-        _log.info("Created module type %s", module_type)
         
     def __create_network_factory(self, network_definition):
         modules, connections = network_definition._get_state()
