@@ -1,6 +1,6 @@
 from modular.modules.base import process, Delay, Reverse, Sum
 from modular.modules.network import Network, NetworkDefinition, \
-    UndefinedValueError, NameConflictError, IllegalOrderError, NetworkFactory
+    UndefinedNameError, NameConflictError, IllegalOrderError, NetworkFactory
 from modular.test.modules.test_module import ModuleTestCase, NoInputTestCase
 from unittest import TestCase, main
 
@@ -47,7 +47,7 @@ class NetworkDefinitionTestCase(TestCase):
         self.definition.add_module("four", "typeone")
         
     def test_invalid_module_type(self):
-        self.assertRaisesRegexp(UndefinedValueError, "other", self.definition.add_module, "test", "other")
+        self.assertRaisesRegexp(UndefinedNameError, "other", self.definition.add_module, "test", "other")
 
     def test_conflicting_module_name(self):
         self.definition.add_module("test", "typeone")
@@ -64,8 +64,8 @@ class NetworkDefinitionTestCase(TestCase):
         self.definition.add_module("one", "typeone")
         self.definition.add_module("two", "typetwo")
         
-        self.assertRaisesRegexp(UndefinedValueError, "three", self.definition.add_connection, "one", "three")
-        self.assertRaisesRegexp(UndefinedValueError, "three", self.definition.add_connection, "three", "two")
+        self.assertRaisesRegexp(UndefinedNameError, "three", self.definition.add_connection, "one", "three")
+        self.assertRaisesRegexp(UndefinedNameError, "three", self.definition.add_connection, "three", "two")
         
         
 TEST_FACTORIES = {"sum": Sum.create, "reverse": Reverse.create}

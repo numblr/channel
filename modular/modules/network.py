@@ -29,7 +29,7 @@ class NetworkDefinition():
         ValueError is raised.
         """
         if module_type not in self.__module_types:
-            raise UndefinedValueError("{0} is not defined".format(module_type))
+            raise UndefinedNameError("{0} is not defined".format(module_type))
 
         if module_id in self.available_modules_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
@@ -45,7 +45,7 @@ class NetworkDefinition():
         """
         available_modules_ids = self.available_modules_ids()
         if from_module not in available_modules_ids or to_module not in available_modules_ids:
-            raise UndefinedValueError("{0} or {1} is not defined".format(from_module, to_module))
+            raise UndefinedNameError("{0} or {1} is not defined".format(from_module, to_module))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
             raise IllegalOrderError("{0} must have been defined before {1}".format(from_module, to_module))
@@ -162,27 +162,26 @@ class Network(Module):
         processed[module_id] = module.process(input_values)
         
         return processed
+
+_EMPTY = Network(None, None, "")
     
 class NameConflictError(Exception):
-    def __init__(self, output):
-        self.value = output
+    def __init__(self, value):
+        self.value = value
     
     def __str__(self):
         return str(self.value)
     
-class UndefinedValueError(Exception):
-    def __init__(self, output):
-        self.value = output
+class UndefinedNameError(Exception):
+    def __init__(self, value):
+        self.value = value
     
     def __str__(self):
         return str(self.value)
     
 class IllegalOrderError(Exception):
-    def __init__(self, output):
-        self.value = output
+    def __init__(self, value):
+        self.value = value
     
     def __str__(self):
         return str(self.value)
-
-_EMPTY = Network(None, None, "")
-
