@@ -1,32 +1,29 @@
-from sound_module.modules import Module, Delay, Echo, Sum, Reverse
 from collections import OrderedDict
+from sound_module.modules import Module, Delay, Echo, Sum, Reverse
 import logging
 
 _log = logging.getLogger(__name__)
 
-
-
-class NetworkFactory():
+class NetworkDefinition():
     """Specifies an ordered list of named Modules and directed connections between them.
     
-    The NetworkFactory can be built by adding new modules with a unique name and
+    The NetworkDefinition can be built by adding new modules with a unique name and
     specifing connections between already added modules by specifing their names.
     
-    The order of the modules in the NetworkFactory is the order in which they
+    The order of the modules in the NetworkDefinition is the order in which they
     where added. Connections can only be created from Module A to B if A < B,
     that is, if A was added before B. In particular circles are not permited.
     
     """
-    __BASE_FACTORIES = {"delay": Delay.create,
-                        "echo": Echo.create,
-                        "noop": Sum.create,
-                        "reverse": Reverse.create
-                        }
-    
-    def __init__(self, modules = None, connections = None, factories = None):
-        self.__modules = modules if modules else ()
-        self.__connections = connections if connections else {}
-        self.__factories = factories if factories else NetworkFactory.__BASE_FACTORIES.copy()
+    def __init__(self, module_types):
+        """Creates a new instance that accepts the specified module types."""
+        self.__modules = ()
+        self.__connections = {}
+        self.__module_types = module_types
+
+    def available_modules_ids(self):
+        """Returns the names of the modules contained in NetworkDefinition."""
+        return [id_ for id_, type_ in self.__modules]
         
     def add_module(self, module_id, module_type):
         """Adds the given module_type with the given id to the NetworkFactory.
@@ -34,13 +31,11 @@ class NetworkFactory():
         If the NetworkFactory already contains a module_type with the given name, a
         ValueError is raised.
         """
-        if module_type not in self.__factories:
+        if module_type not in self.__module_types:
             raise UndefinedValueError("{0} is not defined".format(module_type))
-#            raise ValueError("There is no module type with name \"{0}\". Choose from: {1} ".format(module_type, self.__factories.keys())) 
 
-        if module_id in self.__modules:
+        if module_id in self.available_modules_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
-#            raise ValueError("Module with name \"{0}\" is already defined".format(module_type.get_id())) 
         
         self.__modules = self.__modules + ((module_id, module_type), )
         
@@ -56,11 +51,9 @@ class NetworkFactory():
         available_modules_ids = self.available_modules_ids()
         if from_module not in available_modules_ids or to_module not in available_modules_ids:
             raise UndefinedValueError("{0} or {1} is not defined".format(from_module, to_module))
-#            raise ValueError("""Modules must be added to before they can be connected: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self._available_modules_ids()))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
             raise IllegalOrderError("{0} was defined after {1}".format(from_module, to_module))
-#            raise ValueError("""Modules can be only connected in the order of their definition: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self.available_modules_ids()))
         
         if to_module in self.__connections:
             self.__connections[to_module] += (from_module, )
@@ -72,46 +65,52 @@ class NetworkFactory():
     def __module_order(self, module_id):
         return self.available_modules_ids().index(module_id)
         
-    def create(self):
-        return self.__create(self.__modules, self.__connections, self.__factories)
+    def _get_state(self):
+        return self.__modules, self.__connections.copy()
+    
+class NetworkFactory():
+    __BASE_FACTORIES = {"delay": Delay.create,
+                        "echo": Echo.create,
+                        "noop": Sum.create,
+                        "reverse": Reverse.create
+                        }
+    
+    def __init__(self, factories = None):
+        self.__factories = factories if factories else NetworkFactory.__BASE_FACTORIES.copy()
+        
+    def available_module_types(self):
+        return self.__factories.keys()
+        
+    def create(self, network_definition):
+        modules, connections = network_definition._get_state()
+
+        return self.__create(modules, connections, self.__factories)
     
     def __create(self, modules, connections, factories):
-        modules_by_id = [(id_, self.__module_from_type(type_)) for id_, type_ in modules]
+        modules_instances = [(id_, self.__module_from_type(type_)) for id_, type_ in modules]
         
-        return Network(modules_by_id, connections.copy())
+        return Network(modules_instances, connections)
 
     def __module_from_type(self, module_type):
         module_factory = self.__factories[module_type]
         
         return module_factory()
-        
-    def available_module_types(self):
-        return self.__factories.viewkeys()
     
-    def available_modules_ids(self):
-        return [id_ for id_, type_ in self.__modules]
-    
-    def define_as_module(self, module_type):
+    def define_module_type(self, module_type, network_definition):
         if module_type in self.__factories:
             raise NameConflictError("\"{0}\" is already defined".format(module_type))
-#            raise ValueError("Module type with name \"{0}\" is already defined".format(module_type.get_id())) 
             
-        factory = self.__create_network_factory(self.__modules, self.__connections, self.__factories)
-        self.__factories[module_type] = factory
-        self.__reset()
+        self.__factories[module_type] = self.__create_network_factory(network_definition)
         
         _log.info("Created module type %s", module_type)
         
-    def __create_network_factory(self, modules, connections):
-        factories = {type_: factory for type_, factory in self.__factories if type_ in modules.values()}
+    def __create_network_factory(self, network_definition):
+        modules, connections = network_definition._get_state()
+        factories = {type_: self.__factories[type_] for id_, type_ in modules}
         def factory():
             return self.__create(modules, connections, factories)
         
         return factory
-    
-    def __reset(self):
-        self.__modules = OrderedDict()
-        self.__connections = {}
     
 class Network(Module):
     """Network is a composite module for string processing.
@@ -139,8 +138,8 @@ class Network(Module):
     def __init__(self, modules, connections, value = None):
         """Network instances should be created from a NetworkFactory."""
         super(Network, self).__init__(value)
-        self.__modules = modules if modules else ()
-        self.__connections = connections if connections else {}
+        self.__modules = modules
+        self.__connections = connections
     
     def process(self, input_):
         """Returns a new Network instance holding the processed summed input value."""
@@ -149,7 +148,7 @@ class Network(Module):
         
         summed_input = self.__SUM.process(input_).get_value()
         processed_modules = self.__process_modules(summed_input)
-        id_, last_module = processed_modules[-1]  # @UnusedVariable
+        id_, last_module = processed_modules[-1]
         
         return Network(processed_modules, self.__connections, last_module.get_value())
     

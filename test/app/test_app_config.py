@@ -10,7 +10,7 @@ THREE_ARG = "test test"
 ONE_EXPECTED = "1 arguments expected"
 TWO_EXPECTED = "2 arguments expected"
 
-class Test(unittest.TestCase):
+class CommandsTestCase(unittest.TestCase):
     def test_argument_numbers(self):
         for command in (COMMANDS["module"], COMMANDS["connect"]):
             self.assertRaisesRegexp(ArgumentError, TWO_EXPECTED ,command, ONE_ARG)
