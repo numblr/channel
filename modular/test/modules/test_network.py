@@ -1,9 +1,8 @@
 from modular.modules.base import process, Delay, Reverse, Sum
-from modular.modules.network import Network, NetworkDefinition, UndefinedValueError,\
-    NameConflictError, IllegalOrderError, NetworkFactory
+from modular.modules.network import Network, NetworkDefinition, \
+    UndefinedValueError, NameConflictError, IllegalOrderError, NetworkFactory
+from modular.test.modules.test_module import ModuleTestCase, NoInputTestCase
 from unittest import TestCase, main
-from modular.test.sound_module.test_module import ModuleTestCase,\
-    NoInputTestCase
 
 class NetworkDefinitionTestCase(TestCase):
     def setUp(self):
