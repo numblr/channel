@@ -1,5 +1,5 @@
-from modular.sound_module.modules import process, Delay, Reverse, Sum
-from modular.sound_module.network import Network, NetworkDefinition, UndefinedValueError,\
+from modular.modules.modules import process, Delay, Reverse, Sum
+from modular.modules.network import Network, NetworkDefinition, UndefinedValueError,\
     NameConflictError, IllegalOrderError, NetworkFactory
 from unittest import TestCase, main
 

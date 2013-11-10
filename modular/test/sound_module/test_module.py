@@ -1,5 +1,5 @@
 from unittest import TestCase, main
-from modular.sound_module.modules import Sum, process, Echo, Reverse, Delay,\
+from modular.modules.modules import Sum, process, Echo, Reverse, Delay,\
     process_sequence
 from itertools import islice
 
