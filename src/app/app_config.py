@@ -27,9 +27,9 @@ def _connect(state, *args):
 
 def _process(state, *args):
     network = state.network_factory.create()
-    output_itr = process_sequence(network, args)
+    outputs = process_sequence(network, args)
 
-    result = islice(output_itr, len(args) * _OUTPUT_LENGTH)
+    result = islice(outputs, len(args) * _OUTPUT_LENGTH)
 
     return " ".join(result).strip()
     

@@ -137,7 +137,7 @@ class Network(Module):
     __SUM = Sum()
     
     def __init__(self, modules, connections, value = None):
-        """Network instances should be created with a NetworkFactory."""
+        """Network instances should be created from a NetworkFactory."""
         super(Network, self).__init__(value)
         self.__modules = modules if modules else ()
         self.__connections = connections if connections else {}

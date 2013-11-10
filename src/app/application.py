@@ -1,10 +1,8 @@
-from app.interpreter import Interpreter, EXIT, CommandError
-import logging
-from sound_module.network import UndefinedValueError, IllegalOrderError,\
-    NameConflictError
 from app.app_config import NetworkState, COMMANDS, ArgumentError
-
-_log = logging.getLogger(__name__)
+from app.interpreter import Interpreter, EXIT, CommandError
+from sound_module.network import UndefinedValueError, IllegalOrderError, \
+    NameConflictError
+import logging
 
 def main():
     print("Type help to get usage information")
@@ -28,5 +26,5 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
     main()
