@@ -4,6 +4,8 @@ import logging
 
 _log = logging.getLogger(__name__)
 
+
+
 class NetworkFactory():
     """Specifies an ordered list of named Modules and directed connections between them.
     
@@ -33,10 +35,12 @@ class NetworkFactory():
         ValueError is raised.
         """
         if module_type not in self.__factories:
-            raise ValueError("There is no module type with name \"{0}\". Choose from: {1} ".format(module_type, self.__factories.keys())) 
+            raise UndefinedValueError("{0} is not defined".format(module_type))
+#            raise ValueError("There is no module type with name \"{0}\". Choose from: {1} ".format(module_type, self.__factories.keys())) 
 
         if module_id in self.__modules:
-            raise ValueError("Module with name \"{0}\" is already defined".format(module_type.get_id())) 
+            raise NameConflictError("\"{0}\" is already defined".format(module_id))
+#            raise ValueError("Module with name \"{0}\" is already defined".format(module_type.get_id())) 
         
         self.__modules = self.__modules + ((module_id, module_type), )
         
@@ -51,10 +55,12 @@ class NetworkFactory():
         """
         available_modules_ids = self.available_modules_ids()
         if from_module not in available_modules_ids or to_module not in available_modules_ids:
-            raise ValueError("""Modules must be added to before they can be connected: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self._available_modules_ids()))
+            raise UndefinedValueError("{0} or {1} is not defined".format(from_module, to_module))
+#            raise ValueError("""Modules must be added to before they can be connected: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self._available_modules_ids()))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
-            raise ValueError("""Modules can be only connected in the order of their definition: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self.available_modules_ids()))
+            raise IllegalOrderError("{0} was defined after {1}".format(from_module, to_module))
+#            raise ValueError("""Modules can be only connected in the order of their definition: Tried to connect {0} to {1}. Available: {2}""".format(from_module, to_module, self.available_modules_ids()))
         
         if to_module in self.__connections:
             self.__connections[to_module] += (from_module, )
@@ -87,7 +93,8 @@ class NetworkFactory():
     
     def define_as_module(self, module_type):
         if module_type in self.__factories:
-            raise ValueError("Module type with name \"{0}\" is already defined".format(module_type.get_id())) 
+            raise NameConflictError("\"{0}\" is already defined".format(module_type))
+#            raise ValueError("Module type with name \"{0}\" is already defined".format(module_type.get_id())) 
             
         factory = self.__create_network_factory(self.__modules, self.__connections, self.__factories)
         self.__factories[module_type] = factory
@@ -166,4 +173,26 @@ class Network(Module):
         
         return processed
     
+class NameConflictError(Exception):
+    def __init__(self, value):
+        self.value = value
+    
+    def __str__(self):
+        return repr(self.value)
+    
+class UndefinedValueError(Exception):
+    def __init__(self, value):
+        self.value = value
+    
+    def __str__(self):
+        return repr(self.value)
+    
+class IllegalOrderError(Exception):
+    def __init__(self, value):
+        self.value = value
+    
+    def __str__(self):
+        return repr(self.value)
+
 _EMPTY = Network(None, None, "")
+
