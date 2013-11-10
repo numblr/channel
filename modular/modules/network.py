@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from modular.modules.modules import Module, Delay, Echo, Sum, Reverse
+from modular.modules.base import Module, Delay, Echo, Sum, Reverse
 import logging
 
 _log = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 from unittest import TestCase, main
-from modular.modules.modules import Sum, process, Echo, Reverse, Delay,\
+from modular.modules.base import Sum, process, Echo, Reverse, Delay,\
     process_sequence
 from itertools import islice
 
@@ -38,11 +38,11 @@ class NoInputTestCase(object):
 
     def test_empty(self):
         output = self.module.process("").get_output()
-        self.assertEquals(output, "")
+        self.assertEquals(output, self.expected_no_input)
 
     def test_empty_list(self):
         output = self.module.process(()).get_output()
-        self.assertEquals(output, "")
+        self.assertEquals(output, self.expected_no_input)
 
 class RepetitionTestCase(object):
     def test_repeated_process(self):
@@ -61,35 +61,28 @@ class SumTestCase(TestCase, ModuleTestCase, RepetitionTestCase):
         self.module = Sum()
         self.expected_string_input = "test"
         self.expected_tuple_input = "onetwothree"
+        self.expected_no_input = ""
 
 class EchoTestCase(TestCase, ModuleTestCase, NoInputTestCase, RepetitionTestCase):
     def setUp(self):
         self.module = Echo()
         self.expected_string_input = "testtest"
         self.expected_tuple_input = "onetwothreeonetwothree"
+        self.expected_no_input = ""
 
 class ReverseTestCase(TestCase, ModuleTestCase, NoInputTestCase, RepetitionTestCase):
     def setUp(self):
         self.module = Reverse()
         self.expected_string_input = "tset"
         self.expected_tuple_input = "eerhtowteno"
+        self.expected_no_input = ""
 
 class DelayTestCase(TestCase, ModuleTestCase):
     def setUp(self):
         self.module = Delay()
         self.expected_string_input = Delay.INITIAL_VALUE
         self.expected_tuple_input = Delay.INITIAL_VALUE
-
-    def test_no_input(self):
-        self.assertRaises(TypeError, self.module.process, None)
-
-    def test_empty(self):
-        output = self.module.process("").get_output()
-        self.assertEquals(output, Delay.INITIAL_VALUE)
-
-    def test_empty_list(self):
-        output = self.module.process(()).get_output()
-        self.assertEquals(output, Delay.INITIAL_VALUE)
+        self.expected_no_input = Delay.INITIAL_VALUE
 
     def test_repeated_process(self):
         for i in range(5):

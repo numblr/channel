@@ -1,10 +1,9 @@
-from modular.modules.modules import process, Delay, Reverse, Sum
+from modular.modules.base import process, Delay, Reverse, Sum
 from modular.modules.network import Network, NetworkDefinition, UndefinedValueError,\
     NameConflictError, IllegalOrderError, NetworkFactory
 from unittest import TestCase, main
-
-MODULES = (("a", Sum()), ("b", Reverse()), ("c", Delay()))
-CONNECTIONS = {"b": "a", "c": "b"} 
+from modular.test.sound_module.test_module import ModuleTestCase,\
+    NoInputTestCase
 
 class NetworkDefinitionTestCase(TestCase):
     def setUp(self):
@@ -116,9 +115,15 @@ class NetworkFactoryTestCase(TestCase):
     def test_define_with_name_conflict(self):
         self.assertRaisesRegexp(NameConflictError, "sum", self.factory.define_module_type, "sum", TEST_DEFINITION)
         
-class NetworkTestCase(TestCase):
+MODULES = (("a", Sum()), ("b", Reverse()), ("c", Delay()))
+CONNECTIONS = {"b": "a", "c": "b"} 
+
+class NetworkTestCase(TestCase, ModuleTestCase, NoInputTestCase):
     def setUp(self):
         self.module = Network(MODULES, CONNECTIONS)
+        self.expected_string_input = Delay.INITIAL_VALUE
+        self.expected_tuple_input = Delay.INITIAL_VALUE
+        self.expected_no_input = Delay.INITIAL_VALUE
         
     def test_empty(self):
         empty_network = NetworkFactory().create(NetworkDefinition([]))
