@@ -56,18 +56,21 @@ class NetworkDefinitionTestCase(TestCase):
         self.assertRaisesRegexp(NameConflictError, "test", self.definition.add_module, "test", "typetwo")
 
     def test_invalid_module_order(self):
-        self.definition.add_module("one", "typeone")
-        self.definition.add_module("two", "typetwo")
+        self.__add_module_one_to_four()
         
         self.assertRaisesRegexp(IllegalOrderError, "two must have been defined before one", self.definition.add_connection, "two", "one")
         
     def test_invalid_module_name_in_connection(self):
-        self.definition.add_module("one", "typeone")
-        self.definition.add_module("two", "typetwo")
+        self.__add_module_one_to_four()
         
-        self.assertRaisesRegexp(UndefinedNameError, "three", self.definition.add_connection, "one", "three")
-        self.assertRaisesRegexp(UndefinedNameError, "three", self.definition.add_connection, "three", "two")
+        self.assertRaisesRegexp(UndefinedNameError, "five", self.definition.add_connection, "one", "five")
+        self.assertRaisesRegexp(UndefinedNameError, "five", self.definition.add_connection, "five", "two")
         
+    def test_duplicate_connection(self):
+        self.__add_module_one_to_four()
+        self.definition.add_connection("one", "two")
+        
+        self.assertRaisesRegexp(NameConflictError, "one is already connected to two", self.definition.add_connection, "one", "two")
         
 TEST_FACTORIES = {"sum": Sum.create, "reverse": Reverse.create, "delay": Delay.create}
 

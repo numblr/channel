@@ -44,7 +44,8 @@ class NetworkDefinition():
         
         If one of the given id's was not yet defined in the current instance,
         a UndefinedNameError is raised. If the from_module was added after
-        to_module to the current instance, an IllegalOrderException is raised.
+        to_module to the current instance, an IllegalOrderError is raised. If
+        the connection is already present, a NameConflictError is raised.
         
         """
         available_modules_ids = self.available_module_ids()
@@ -53,6 +54,9 @@ class NetworkDefinition():
             
         if self.__module_order(from_module) > self.__module_order(to_module):
             raise IllegalOrderError("{0} must have been defined before {1}".format(from_module, to_module))
+        
+        if to_module in self.__connections and from_module in self.__connections[to_module]:
+            raise NameConflictError("{0} is already connected to {1}".format(from_module, to_module)) 
         
         if to_module in self.__connections:
             self.__connections[to_module] += (from_module, )
