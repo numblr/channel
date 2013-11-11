@@ -1,10 +1,10 @@
 class Module(object):
-    """Module is the base class for modules.
+    """Module is the base class for modules that process an input.
     
     A Module instance provides a process method that returns a Module instance
     that holds an output calculated from an input and eventualy some additional
     internal state. If a Module instance is not originating from a call to the
-    process method, it's output value must be None.
+    process method, it's output value should be None.
     
     The Module base class is not intended to be instantiated. Instances of
     subclasses of Module should be immutable.
@@ -23,8 +23,8 @@ class Module(object):
         """Returns the output value held by the current instance.
         
         The output value is the processing result from the call to the process
-        method that created the current instance, or None if the instance was
-        not created by the process method.
+        method that returned the current instance, or None if the instance was
+        not returned from the process method.
         
         """
         return self.__output
@@ -50,7 +50,7 @@ class Sum(Module):
         the input.
         
         """
-        #TODO implement other types :(
+        #Sum is unfortulately still specific to strings.
         return Sum("".join(input_))
 
 def process(module, input_):

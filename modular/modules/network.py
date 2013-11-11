@@ -72,7 +72,7 @@ class NetworkDefinition():
 class NetworkFactory():
     """Creates Network instances from a NetworkDefinition.
     
-    New compound module types can be defined with a NetworkDefinition.
+    New compound module types can be defined from a NetworkDefinition.
         
     """
     def __init__(self, factories):
@@ -82,7 +82,7 @@ class NetworkFactory():
         function for the corresponding Module instances.
         
         """
-        self.__factories = factories
+        self.__factories = factories.copy()
         
     def available_module_types(self):
         """Returns a list of the available module type identifiers."""
@@ -139,6 +139,9 @@ class Network(Module):
     The structure of a Network module is defined by a NetworkDefinition, which
     specifies and ordered list of modules and input-output connections between
     them.
+    
+    The order of processing of the modules in the Network is according to the
+    topologial ordering implied by the input-output connections between them.  
     
     """
     def __init__(self, modules, connections, output = None):
