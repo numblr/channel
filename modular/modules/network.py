@@ -72,7 +72,6 @@ class NetworkFactory():
     a given NetworkDefinition.
         
     """
-    
     def __init__(self, factories):
         """Initializes a new instance with the given factories.
         
@@ -80,7 +79,7 @@ class NetworkFactory():
         module type with a factory function for the corresponding Module object.
         
         """
-        self.__factories = factories if factories else NetworkFactory.__BASE_FACTORIES.copy()
+        self.__factories = factories
         
     def available_module_types(self):
         """Returns a list of the available module type identifiers"""

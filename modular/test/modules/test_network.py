@@ -1,7 +1,8 @@
-from modular.modules.base import process, Delay, Reverse, Sum
+from modular.modules.base import process, Sum
 from modular.modules.network import Network, NetworkDefinition, \
     UndefinedNameError, NameConflictError, IllegalOrderError, NetworkFactory
-from modular.test.modules.test_module import ModuleTestCase, NoInputTestCase
+from modular.modules.string_modules import Delay, Reverse
+from modular.test.modules.base import ModuleTestCase, NoInputTestCase
 from unittest import TestCase, main
 
 class NetworkDefinitionTestCase(TestCase):
@@ -68,7 +69,7 @@ class NetworkDefinitionTestCase(TestCase):
         self.assertRaisesRegexp(UndefinedNameError, "three", self.definition.add_connection, "three", "two")
         
         
-TEST_FACTORIES = {"sum": Sum.create, "reverse": Reverse.create}
+TEST_FACTORIES = {"sum": Sum.create, "reverse": Reverse.create, "delay": Delay.create}
 
 def create_test_definition(module_types):
     definition = NetworkDefinition(module_types)
@@ -86,7 +87,7 @@ class NetworkFactoryTestCase(TestCase):
         self.factory = NetworkFactory(TEST_FACTORIES.copy())
         
     def test_available_types(self):
-        self.assertItemsEqual(self.factory.available_module_types(), ("sum", "reverse"))
+        self.assertItemsEqual(self.factory.available_module_types(), ("sum", "reverse", "delay"))
         
     def test_create(self):
         network = self.factory.create(TEST_DEFINITION)
@@ -97,7 +98,7 @@ class NetworkFactoryTestCase(TestCase):
     def test_define(self):
         self.factory.define_module_type("test", TEST_DEFINITION)
         
-        self.assertItemsEqual(self.factory.available_module_types(), ("sum", "reverse", "test"))
+        self.assertItemsEqual(self.factory.available_module_types(), ("sum", "reverse", "delay", "test"))
         
     def test_define_and_use(self):
         self.factory.define_module_type("test", TEST_DEFINITION)
@@ -110,6 +111,21 @@ class NetworkFactoryTestCase(TestCase):
         output = test_network.process("test").get_output()
         
         self.assertEquals(output, "tset")
+        
+    def test_create_independent(self):
+        output_1 = self.__create_and_process_delay(self.factory)
+        output_2 = self.__create_and_process_delay(self.factory)
+        
+        self.assertEquals(output_1, Delay.INITIAL_VALUE)
+        self.assertEquals(output_2, Delay.INITIAL_VALUE)
+        
+    def __create_and_process_delay(self, factory):
+        definition = NetworkDefinition(self.factory.available_module_types())
+        definition.add_module("test", "delay")
+        
+        test_network = factory.create(definition)
+        
+        return test_network.process("test").get_output()
         
     def test_define_with_name_conflict(self):
         self.assertRaisesRegexp(NameConflictError, "sum", self.factory.define_module_type, "sum", TEST_DEFINITION)
@@ -125,7 +141,7 @@ class NetworkTestCase(TestCase, ModuleTestCase, NoInputTestCase):
         self.expected_no_input = Delay.INITIAL_VALUE
         
     def test_empty(self):
-        empty_network = NetworkFactory().create(NetworkDefinition([]))
+        empty_network = NetworkFactory([]).create(NetworkDefinition([]))
         
         self.assertEquals(empty_network.process("test").get_output(), "")
         

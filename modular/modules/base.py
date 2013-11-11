@@ -33,10 +33,16 @@ class Module(object):
 
 class Sum(Module):
     def __init__(self, output = None):
+        """Initializes a new instance with the given output or None."""
         super(Sum, self).__init__(output)
         
     def process(self, input_):
-        """Returns a Sum instance with the concatenated input strings."""
+        """Returns a Sum instance that holds the summed input.
+        
+        For strings the summed input is the concatenation of the input strings.
+        
+        """
+        #TODO implement other types :)
         return Sum("".join(input_))
 
 def process(module, input_):
