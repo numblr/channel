@@ -145,7 +145,7 @@ class NetworkTestCase(TestCase, ModuleTestCase, NoInputTestCase):
         self.expected_no_input = Delay.INITIAL_VALUE
         
     def test_empty(self):
-        empty_network = NetworkFactory([]).create(NetworkDefinition([]))
+        empty_network = NetworkFactory({}).create(NetworkDefinition([]))
         
         self.assertEquals(empty_network.process("test").get_output(), "")
         
