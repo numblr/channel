@@ -96,15 +96,10 @@ class NetworkFactory():
         return self.__create(modules, connections, self.__factories)
     
     def __create(self, modules, connections, factories):
-        modules_instances = [(id_, self.__module_from_type(type_)) for id_, type_ in modules]
+        modules_instances = [(id_, self.__factories[type_]()) for id_, type_ in modules]
         
         return Network(modules_instances, connections)
 
-    def __module_from_type(self, module_type):
-        module_factory = self.__factories[module_type]
-        
-        return module_factory()
-    
     def define_module_type(self, module_type, network_definition):
         """Adds support for Network modules based on the given definition to the current instance.
         
@@ -114,7 +109,7 @@ class NetworkFactory():
         network_definition will be created in the resulting Network.
         
         If the specified network_definition contains module types that are not
-        accepted by the current instance, a KeyError is raised.
+        accepted by the current instance, an KeyError is raised.
 
         """
         if module_type in self.__factories:
@@ -124,6 +119,9 @@ class NetworkFactory():
         
     def __create_network_factory(self, network_definition):
         modules, connections = network_definition._get_state()
+        if not all(type_ in self.__factories.keys() for _, type_ in modules):
+            raise KeyError("Definition contains unsuppoted module types")
+        
         def factory():
             return self.__create(modules, connections, self.__factories)
         
