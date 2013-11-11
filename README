@@ -1,14 +1,15 @@
 Solution to Task 4: Modular Madness
-=======================================
+==================================================
 
 Run the program by
 
 >python application.py
 
-from the directory containing this file. I tested it with python
-version 2.7.5, it is not compatible with python 3.
+from the directory containing this file. I tested
+it with python version 2.7.5, it is not compatible
+with python 3.
 
-=======================================
+==================================================
 
-The "modular" is contains the source code of the application
-and tests.
+The "modular" directory contains the source code
+of the application and tests.
