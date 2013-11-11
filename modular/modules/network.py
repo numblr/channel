@@ -58,10 +58,10 @@ class NetworkDefinition():
         if to_module in self.__connections and from_module in self.__connections[to_module]:
             raise NameConflictError("{0} is already connected to {1}".format(from_module, to_module)) 
         
-        if to_module in self.__connections:
-            self.__connections[to_module] += (from_module, )
-        else:
-            self.__connections[to_module] = (from_module, )
+        if to_module not in self.__connections:
+            self.__connections[to_module] = ()
+            
+        self.__connections[to_module] += (from_module, )
             
     def __module_order(self, module_id):
         return self.available_module_ids().index(module_id)
