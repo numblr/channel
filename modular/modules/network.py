@@ -112,8 +112,10 @@ class NetworkFactory():
         identifier. For these entries a Network module based on
         network_definition will be created in the resulting Network.
         
-        If the specified network_definition contains module types that are not
-        accepted by the current instance, an KeyError is raised.
+        If there is already a module type with the given identifier, a
+        NameConflictError is raised. If the specified network_definition
+        contains module types that are not accepted by the current instance,
+        a KeyError is raised.
 
         """
         if module_type in self.__factories:
@@ -148,12 +150,12 @@ class Network(Module):
     def process(self, input_):
         """Returns a new Network instance holding the processed summed input value.
 
-        The input to the Network is feed to the first module in the
-        NetworkDefinition.
+        The input to is feed to the first module in the Network.
         
-        The output held by the created Network instance is the output value of
-        the last module in the Network after processing. If the Network contains
-        no module, the output is the empty string. 
+        The output held by the returned Network instance is the output value of
+        the last module in the Network after processing the input by all
+        modules in the Network, according to the specified connections. If the
+        Network contains no module, the output is the empty string. 
         
         """
         if not self.__modules:
