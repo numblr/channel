@@ -1,7 +1,8 @@
-from modular.modules.base import Module, sum_
+from itertools import chain
+from modular.modules.base import Module, sum_, process
 
 class Delay(Module):
-    """Output is the previous input value, and initally Delay.INITIAL_VALUE"""
+    """Gives the previous summed input, and initally Delay.INITIAL_VALUE"""
     INITIAL_VALUE = "Hello"
     
     def __init__(self, output = None, previous = None):
@@ -26,7 +27,7 @@ class Delay(Module):
         return Delay(new_output, current_input)
     
 class Echo(Module):
-    """Output is the input value concatenated with itself."""
+    """Concatenates the summed input with itself."""
     def __init__(self, output = None):
         """Initializes a new instance with the given output or None."""
         super(Echo, self).__init__(output)
@@ -39,7 +40,7 @@ class Echo(Module):
         return Echo(new_output)
             
 class Reverse(Module):
-    """Output is the input value reversed."""
+    """Reverses the summed input."""
     def __init__(self, output = None):
         """Initializes a new instance with the given output or None."""
         super(Reverse, self).__init__(output)
@@ -49,3 +50,18 @@ class Reverse(Module):
         new_output = sum_(input_)[::-1]
         
         return Reverse(new_output)
+    
+def process_sequence(module, input_sequence):
+    """Returns an infinite generator of outputs for the given sequence of inputs.
+    
+    The generator contains the output values of the module that is consecutively feed
+    with the elements from the input sequence followed by an infinte sequence of empty
+    strings.
+    
+    """
+    inputs = chain(input_sequence, iter(str, "infinite generator of empty strings"))
+    while True:
+        input_value = next(inputs)
+        module, new_output = process(module, input_value)
+        yield new_output
+    

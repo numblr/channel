@@ -20,7 +20,7 @@ class ModuleTestCase():
         self.assertEquals(output, self.expected_tuple_input)
         
     def test_repeated_process(self):
-        for i in range(5):
+        for _ in range(5):
             self.test_multiple()
 
     def test_generator(self):
@@ -43,13 +43,13 @@ class NoInputTestCase(object):
 
 class RepetitionTestCase(object):
     def test_repeated_process(self):
-        for i in range(5):
+        for _ in range(5):
             output = self.module.process(TUPLE_INPUT).get_output()
             self.assertEquals(output, self.expected_tuple_input)
 
     def test_consecutive_process(self):
         processed = self.module
-        for i in range(5):
+        for _ in range(5):
             processed, value = process(processed, TUPLE_INPUT)
             self.assertEquals(value, self.expected_tuple_input)
 

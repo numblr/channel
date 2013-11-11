@@ -24,7 +24,7 @@ class NetworkDefinition():
         return [id_ for id_, _ in self.__modules]
         
     def add_module(self, module_id, module_type):
-        """Adds the given module_type with the given module_id to the NetworkFactory.
+        """Adds the given module_type with the given module_id to the definition.
         
         If the current instance already contains a module with the given
         module_id, a NameConflictError is raised. If the current instance does
@@ -68,21 +68,20 @@ class NetworkDefinition():
 class NetworkFactory():
     """Creates Network instances from a NetworkDefinition.
     
-    The set of accepted module types can be extended with Network modules from
-    a given NetworkDefinition.
+    New compound module types can be defined with a NetworkDefinition.
         
     """
     def __init__(self, factories):
         """Initializes a new instance with the given factories.
         
-        factories must privide a dictionary associating an identifier for a
-        module type with a factory function for the corresponding Module object.
+        factories must privide a mapping from a module type to a factory
+        function for the corresponding Module instances.
         
         """
         self.__factories = factories
         
     def available_module_types(self):
-        """Returns a list of the available module type identifiers"""
+        """Returns a list of the available module type identifiers."""
         return self.__factories.keys()
         
     def create(self, network_definition):
@@ -125,9 +124,8 @@ class NetworkFactory():
         
     def __create_network_factory(self, network_definition):
         modules, connections = network_definition._get_state()
-        factories = {type_: self.__factories[type_] for _, type_ in modules}
         def factory():
-            return self.__create(modules, connections, factories)
+            return self.__create(modules, connections, self.__factories)
         
         return factory
     
@@ -153,9 +151,9 @@ class Network(Module):
         The input to the Network is feed to the first module in the
         NetworkDefinition.
         
-        The output of the Network is the output value of the last module in the
-        Network after processing. If the Network contains no module, the output
-        is the empty string. 
+        The output held by the created Network instance is the output value of
+        the last module in the Network after processing. If the Network contains
+        no module, the output is the empty string. 
         
         """
         if not self.__modules:

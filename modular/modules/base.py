@@ -1,12 +1,12 @@
-from itertools import chain
-
 class Module(object):
-    """Module is the base class for processing units for strings.
+    """Module is the base class for processing units.
     
-    A Module instance holds the module's current value. Subclasses of Module
+    A Module instance holds the module's output value. Subclasses of Module
     must implement the process method that creates a new instance which holds the
-    processed value depending on the given input.
-     
+    processed output value for the given input.
+    
+    Modules may have additional state other than the output value.
+    
     Module is not intended to be instantiated. Instances of subclasses of Module
     should be immutable.
     
@@ -20,11 +20,17 @@ class Module(object):
         self.__output = output
     
     def get_output(self):
-        """Returns the current value of the Module"""
+        """Returns the output value held by the current instance.
+        
+        The output value is the processing result from the call to the process
+        method that created the current instance, or None if the instance was
+        not created by the process method.
+        
+        """
         return self.__output
     
     def process(self, input_):
-        """Creates a instance of the class holding a new value calculated from the given input.
+        """Returns an instance holding the output calculated from the given input.
         
         Subclasses of Module must implement this method.
         
@@ -32,6 +38,7 @@ class Module(object):
         raise NotImplementedError
 
 class Sum(Module):
+    """Sums the input."""
     def __init__(self, output = None):
         """Initializes a new instance with the given output or None."""
         super(Sum, self).__init__(output)
@@ -39,32 +46,19 @@ class Sum(Module):
     def process(self, input_):
         """Returns a Sum instance that holds the summed input.
         
-        For strings the summed input is the concatenation of the input strings.
+        For strings the summed input is the concatenation of the stirngs in
+        the input.
         
         """
-        #TODO implement other types :)
+        #TODO implement other types :(
         return Sum("".join(input_))
 
 def process(module, input_):
-    """Returns the processed module and the new value resulting from the given input."""
+    """Returns the processed module and the output value calculated from the given input."""
     processed = module.process(input_)
     
     return processed, processed.get_output()
 
-def process_sequence(module, input_sequence):
-    """Returns an infinite generator of output strings for the given sequence of inputs.
-    
-    The generator contains the output values of the module if it is consecutively feed
-    with the elements from the input sequence followed by an infinte sequence of empty
-    strings.
-    
-    """
-    inputs = chain(input_sequence, iter(str, "infinite generator of empty strings"))
-    while True:
-        input_value = next(inputs)
-        module, new_output = process(module, input_value)
-        yield new_output
-    
 _SUM = Sum()
      
 def sum_(input_):
