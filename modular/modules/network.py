@@ -157,8 +157,10 @@ class Network(Module):
         
         The output held by the returned Network instance is the output value of
         the last module in the Network after processing the input by all
-        modules in the Network, according to the specified connections. If the
-        Network contains no module, the output is the empty string. 
+        modules in the Network, even if it is not connected from the input
+        module. Modules are processed in their topolocial order according to the
+        specified connections. If the Network contains no module, the output is
+        None. 
         
         """
         if not self.__modules:
@@ -170,6 +172,9 @@ class Network(Module):
         return Network(processed_modules, self.__connections, last_module.get_output())
     
     def __process_modules(self, input_):
+        #Modules are processed in the order of their definition. This is
+        #guaranteed to work by the conditions in the NetworkDefinition. 
+        #The algorithm could be improved by depth-first search like processing. 
         modules = self.__modules
         processed = OrderedDict()
         
@@ -190,7 +195,7 @@ class Network(Module):
         
         return processed
 
-_EMPTY = Network(None, None, "")
+_EMPTY = Network(None, None, None)
     
 class NameConflictError(Exception):
     def __init__(self, value):

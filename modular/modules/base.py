@@ -32,6 +32,8 @@ class Module(object):
     def process(self, input_):
         """Returns an instance holding the output calculated from the given input.
         
+        input_ can be a single value or a sequence of values.
+        
         Subclasses of Module must implement this method.
         
         """

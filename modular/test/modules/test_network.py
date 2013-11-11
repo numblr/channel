@@ -147,26 +147,25 @@ class NetworkTestCase(TestCase, ModuleTestCase, NoInputTestCase):
     def test_empty(self):
         empty_network = NetworkFactory({}).create(NetworkDefinition([]))
         
-        self.assertEquals(empty_network.process("test").get_output(), "")
+        self.assertEquals(empty_network.process("test").get_output(), None)
         
     def test_consecutive_process(self):
         input_ = ("hello", "world", "", "", "", "")
         expected = (Delay.INITIAL_VALUE, "olleh", "dlrow", "", "")
         
-        processed = self.module
-
-        for i in range(0, len(expected)):
-            processed, value = process(processed, input_[i])
-            self.assertEquals(value, expected[i])
+        self.__assert_processed(self.module, input_, expected)
         
-    def test_unconnected_module(self):
-        processed = Network(MODULES, INCOMPLETE_CONNECTIONS.copy())
+    def test_no_path_to_output(self):
+        network = Network(MODULES, INCOMPLETE_CONNECTIONS.copy())
 
         input_ = ("hello", "world", "", "", "", "")
         expected = (Delay.INITIAL_VALUE, "", "", "", "")
         
+        self.__assert_processed(network, input_, expected)
+        
+    def __assert_processed(self, network, input_, expected):
         for i in range(0, len(expected)):
-            processed, value = process(processed, input_[i])
+            network, value = process(network, input_[i])
             self.assertEquals(value, expected[i])
 
 if __name__ == "__main__":
