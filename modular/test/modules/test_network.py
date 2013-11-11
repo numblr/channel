@@ -131,11 +131,12 @@ class NetworkFactoryTestCase(TestCase):
         self.assertRaisesRegexp(NameConflictError, "sum", self.factory.define_module_type, "sum", TEST_DEFINITION)
         
 MODULES = (("a", Sum()), ("b", Reverse()), ("c", Delay()))
-CONNECTIONS = {"b": "a", "c": "b"} 
+CONNECTIONS = {"b": "a", "c": "b"}
+INCOMPLETE_CONNECTIONS = {"b": "a"}
 
 class NetworkTestCase(TestCase, ModuleTestCase, NoInputTestCase):
     def setUp(self):
-        self.module = Network(MODULES, CONNECTIONS)
+        self.module = Network(MODULES, CONNECTIONS.copy())
         self.expected_string_input = Delay.INITIAL_VALUE
         self.expected_tuple_input = Delay.INITIAL_VALUE
         self.expected_no_input = Delay.INITIAL_VALUE
@@ -151,6 +152,16 @@ class NetworkTestCase(TestCase, ModuleTestCase, NoInputTestCase):
         
         processed = self.module
 
+        for i in range(0, len(expected)):
+            processed, value = process(processed, input_[i])
+            self.assertEquals(value, expected[i])
+        
+    def test_unconnected_module(self):
+        processed = Network(MODULES, INCOMPLETE_CONNECTIONS.copy())
+
+        input_ = ("hello", "world", "", "", "", "")
+        expected = (Delay.INITIAL_VALUE, "", "", "", "")
+        
         for i in range(0, len(expected)):
             processed, value = process(processed, input_[i])
             self.assertEquals(value, expected[i])

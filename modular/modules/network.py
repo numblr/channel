@@ -176,7 +176,8 @@ class Network(Module):
         return processed.items()
         
     def __process_module(self, module_id, module, processed):
-        input_modules = self.__connections[module_id]
+        connections = self.__connections
+        input_modules = connections[module_id] if module_id in connections else () 
         input_values = (processed[input_id].get_output() for input_id in input_modules)
         
         processed[module_id] = module.process(input_values)
