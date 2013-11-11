@@ -1,49 +1,53 @@
 from collections import OrderedDict
-from modular.modules.base import Module, Delay, Echo, Sum, Reverse
+from modular.modules.base import Module, Sum
 
 class NetworkDefinition():
     """Specifies an ordered list of named Modules and directed connections between them.
     
-    The NetworkDefinition can be built by adding new modules with a unique name and
-    specifing connections between already added modules by specifing their names.
+    The NetworkDefinition can be built by adding new modules with a unique id and
+    specifing connections between already added modules by specifing their ids.
     
-    The order of the modules in the NetworkDefinition is the order in which they
-    where added. Connections can only be created from Module A to B if A < B,
-    that is, if A was added before B. In particular circles are not permited.
+    The order of the modules in the definition is the order in which they where
+    added. Connections can only be created from Module A to B if A < B, that is,
+    if A was added before B. In particular circular connections between the
+    modules are not permited.
     
     """
     def __init__(self, module_types):
-        """Creates a new instance that accepts the specified module types."""
+        """Initializes a new instance with an iterable of allowed module types."""
         self.__modules = ()
         self.__connections = {}
-        self.__module_types = module_types
+        self.__module_types = tuple(module_types)
 
-    def available_modules_ids(self):
-        """Returns the names of the modules contained in NetworkDefinition."""
-        return [id_ for id_, type_ in self.__modules]
+    def available_module_ids(self):
+        """Returns the ids of the modules defined in the current instance."""
+        return [id_ for id_, _ in self.__modules]
         
     def add_module(self, module_id, module_type):
-        """Adds the given module_type with the given id to the NetworkFactory.
+        """Adds the given module_type with the given module_id to the NetworkFactory.
         
-        If the NetworkFactory already contains a module_type with the given name, a
-        ValueError is raised.
+        If the current instance already contains a module with the given
+        module_id, a NameConflictError is raised. If the current instance does
+        not accept the specified module_type, an UndefinedNameError is raised.
+        
         """
         if module_type not in self.__module_types:
             raise UndefinedNameError("{0} is not defined".format(module_type))
 
-        if module_id in self.available_modules_ids():
+        if module_id in self.available_module_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
         
         self.__modules = self.__modules + ((module_id, module_type), )
         
     def add_connection(self, from_module, to_module):
-        """Adds a connection from from_module to to_module to the NetworkFactory.
+        """Adds a connection from from_module to to_module to the current instance.
         
-        If the NetworkFactory either of them was not yet added to the NetworkFactory
-        or if the from_module was added after to_module to the NetworkFactory, a
-        ValueError is raised.
+        If one of the given id's was not yet defined in the current instance,
+        a UndefinedNameError is raised. If the from_module was added after
+        to_module to the current instance, an IllegalOrderException is raised.
+        
         """
-        available_modules_ids = self.available_modules_ids()
+        available_modules_ids = self.available_module_ids()
         if from_module not in available_modules_ids or to_module not in available_modules_ids:
             raise UndefinedNameError("{0} or {1} is not defined".format(from_module, to_module))
             
@@ -56,25 +60,39 @@ class NetworkDefinition():
             self.__connections[to_module] = (from_module, )
             
     def __module_order(self, module_id):
-        return self.available_modules_ids().index(module_id)
+        return self.available_module_ids().index(module_id)
         
     def _get_state(self):
         return self.__modules, self.__connections.copy()
     
 class NetworkFactory():
-    __BASE_FACTORIES = {"delay": Delay.create,
-                        "echo": Echo.create,
-                        "noop": Sum.create,
-                        "reverse": Reverse.create
-                        }
+    """Creates Network instances from a NetworkDefinition.
     
-    def __init__(self, factories = None):
+    The set of accepted module types can be extended with Network modules from
+    a given NetworkDefinition.
+        
+    """
+    
+    def __init__(self, factories):
+        """Initializes a new instance with the given factories.
+        
+        factories must privide a dictionary associating an identifier for a
+        module type with a factory function for the corresponding Module object.
+        
+        """
         self.__factories = factories if factories else NetworkFactory.__BASE_FACTORIES.copy()
         
     def available_module_types(self):
+        """Returns a list of the available module type identifiers"""
         return self.__factories.keys()
         
     def create(self, network_definition):
+        """Returns a new Network instance based on the given NetworkDefinition.
+        
+        If the specified network_definition contains module types that are not
+        accepted by the current instance, a KeyError is raised.
+        
+        """
         modules, connections = network_definition._get_state()
 
         return self.__create(modules, connections, self.__factories)
@@ -90,6 +108,17 @@ class NetworkFactory():
         return module_factory()
     
     def define_module_type(self, module_type, network_definition):
+        """Adds support for Network modules based on the given definition to the current instance.
+        
+        After defining a module type, the create method on the current instance
+        accepts network definitions containing the specified module_type
+        identifier. For these entries a Network module based on
+        network_definition will be created in the resulting Network.
+        
+        If the specified network_definition contains module types that are not
+        accepted by the current instance, a KeyError is raised.
+
+        """
         if module_type in self.__factories:
             raise NameConflictError("\"{0}\" is already defined".format(module_type))
             
@@ -97,33 +126,20 @@ class NetworkFactory():
         
     def __create_network_factory(self, network_definition):
         modules, connections = network_definition._get_state()
-        factories = {type_: self.__factories[type_] for id_, type_ in modules}
+        factories = {type_: self.__factories[type_] for _, type_ in modules}
         def factory():
             return self.__create(modules, connections, factories)
         
         return factory
     
 class Network(Module):
-    """Network is a composite module for string processing.
+    """Network is a composite module based on a NetworkDefinition.
     
-    The structure of a Network module is defined by a NetworkFactory, which
+    The structure of a Network module is defined by a NetworkDefinition, which
     specifies and ordered list of modules and input-output connections between
     them.
     
-    The input strings to the Network are feed to the first module in the
-    NetworkFactory one by one. A single input string is process by the modules in
-    their given order. Thus connections that lead backward in the module order,
-    and in particular circles, are not allowed in the NetworkFactory.
-    
-    The output of the Network for a single input string is the value of the
-    last module in the NetworkFactory after processing. For multiple inputs the
-    outputs are concatenated with a single separating whitespace character in
-    between them. The number of words in the output string is limited to
-    Network.OUTPUT_LENGHT times the number of strings in the input. If the
-    Network contains no module, the output is the empty string. 
-    
     """
-    
     __SUM = Sum()
     
     def __init__(self, modules, connections, output = None):
@@ -133,13 +149,22 @@ class Network(Module):
         self.__connections = connections
     
     def process(self, input_):
-        """Returns a new Network instance holding the processed summed input value."""
+        """Returns a new Network instance holding the processed summed input value.
+
+        The input to the Network is feed to the first module in the
+        NetworkDefinition.
+        
+        The output of the Network is the output value of the last module in the
+        Network after processing. If the Network contains no module, the output
+        is the empty string. 
+        
+        """
         if not self.__modules:
             return _EMPTY
         
         summed_input = self.__SUM.process(input_).get_output()
         processed_modules = self.__process_modules(summed_input)
-        id_, last_module = processed_modules[-1]
+        _, last_module = processed_modules[-1]
         
         return Network(processed_modules, self.__connections, last_module.get_output())
     

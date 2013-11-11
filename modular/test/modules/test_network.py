@@ -11,12 +11,12 @@ class NetworkDefinitionTestCase(TestCase):
     def test_add_module(self):
         self.definition.add_module("test", "typeone")
         
-        self.assertEquals(self.definition.available_modules_ids(), ["test"])
+        self.assertEquals(self.definition.available_module_ids(), ["test"])
 
     def test_add_multiple_modules(self):
         self.__add_module_one_to_four()
         
-        self.assertEquals(self.definition.available_modules_ids(), ["one", "two", "three", "four"])
+        self.assertEquals(self.definition.available_module_ids(), ["one", "two", "three", "four"])
 
     def test_add_connections(self):
         self.__add_module_one_to_four()
