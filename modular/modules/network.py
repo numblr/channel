@@ -32,7 +32,7 @@ class NetworkDefinition():
         
         """
         if module_type not in self.__module_types:
-            raise UndefinedNameError("{0} is not defined".format(module_type))
+            raise UndefinedNameError("\"{0}\" is not defined".format(module_type))
 
         if module_id in self.available_module_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
@@ -50,13 +50,13 @@ class NetworkDefinition():
         """
         available_modules_ids = self.available_module_ids()
         if from_module not in available_modules_ids or to_module not in available_modules_ids:
-            raise UndefinedNameError("{0} or {1} is not defined".format(from_module, to_module))
+            raise UndefinedNameError("\"{0}\" or \"{1}\" is not defined".format(from_module, to_module))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
-            raise IllegalOrderError("{0} must have been defined before {1}".format(from_module, to_module))
+            raise IllegalOrderError("\"{0}\" must have been defined before \"{1}\"".format(from_module, to_module))
         
         if to_module in self.__connections and from_module in self.__connections[to_module]:
-            raise NameConflictError("{0} is already connected to {1}".format(from_module, to_module)) 
+            raise NameConflictError("\"{0}\" is already connected to \"{1}\"".format(from_module, to_module)) 
         
         if to_module not in self.__connections:
             self.__connections[to_module] = ()

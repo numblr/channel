@@ -58,7 +58,7 @@ class NetworkDefinitionTestCase(TestCase):
     def test_invalid_module_order(self):
         self.__add_module_one_to_four()
         
-        self.assertRaisesRegexp(IllegalOrderError, "two must have been defined before one", self.definition.add_connection, "two", "one")
+        self.assertRaisesRegexp(IllegalOrderError, "\"two\" must have been defined before \"one\"", self.definition.add_connection, "two", "one")
         
     def test_invalid_module_name_in_connection(self):
         self.__add_module_one_to_four()
@@ -70,7 +70,7 @@ class NetworkDefinitionTestCase(TestCase):
         self.__add_module_one_to_four()
         self.definition.add_connection("one", "two")
         
-        self.assertRaisesRegexp(NameConflictError, "one is already connected to two", self.definition.add_connection, "one", "two")
+        self.assertRaisesRegexp(NameConflictError, "\"one\" is already connected to \"two\"", self.definition.add_connection, "one", "two")
         
 TEST_FACTORIES = {"sum": Sum.create, "reverse": Reverse.create, "delay": Delay.create}
 
