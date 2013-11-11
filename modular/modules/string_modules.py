@@ -1,5 +1,5 @@
 from itertools import chain
-from modular.modules.base import Module, sum_, process
+from modular.modules.base import Module, sum_input, process
 
 class Delay(Module):
     """Gives the previous summed input, and initally Delay.INITIAL_VALUE"""
@@ -22,7 +22,7 @@ class Delay(Module):
         
         """
         new_output = self.__previous
-        current_input = sum_(input_)
+        current_input = sum_input(input_)
         
         return Delay(new_output, current_input)
     
@@ -34,7 +34,7 @@ class Echo(Module):
 
     def process(self, input_):
         """Returns an Echo instance that holds the summed input concatenated with itself."""
-        added_input_ = sum_(input_)
+        added_input_ = sum_input(input_)
         new_output = added_input_ + added_input_
         
         return Echo(new_output)
@@ -47,7 +47,7 @@ class Reverse(Module):
 
     def process(self, input_):
         """Returns a Reverse instance that holds the summed input reversed."""
-        new_output = sum_(input_)[::-1]
+        new_output = sum_input(input_)[::-1]
         
         return Reverse(new_output)
     

@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from modular.modules.base import Module, Sum
+from modular.modules.base import Module, sum_input
 
 class NetworkDefinition():
     """Specifies an ordered list of named Modules and directed connections between them.
@@ -139,8 +139,6 @@ class Network(Module):
     them.
     
     """
-    __SUM = Sum()
-    
     def __init__(self, modules, connections, output = None):
         """Network instances should be created from a NetworkFactory."""
         super(Network, self).__init__(output)
@@ -161,8 +159,7 @@ class Network(Module):
         if not self.__modules:
             return _EMPTY
         
-        summed_input = self.__SUM.process(input_).get_output()
-        processed_modules = self.__process_modules(summed_input)
+        processed_modules = self.__process_modules(sum_input(input_))
         _, last_module = processed_modules[-1]
         
         return Network(processed_modules, self.__connections, last_module.get_output())

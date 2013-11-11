@@ -1,18 +1,18 @@
 class Module(object):
-    """Module is the base class for processing units.
+    """Module is the base class for modules.
     
-    A Module instance holds the module's output value. Subclasses of Module
-    must implement the process method that creates a new instance which holds the
-    processed output value for the given input.
+    A Module instance provides a process method that returns a Module instance
+    that holds an output calculated from an input and eventualy some additional
+    internal state. If a Module instance is not originating from a call to the
+    process method, it's output value must be None.
     
-    Modules may have additional state other than the output value.
-    
-    Module is not intended to be instantiated. Instances of subclasses of Module
-    should be immutable.
+    The Module base class is not intended to be instantiated. Instances of
+    subclasses of Module should be immutable.
     
     """
     @classmethod
     def create(cls):
+        """Creates a new instance with output None."""
         return cls()
     
     def __init__(self, output = None):
@@ -46,7 +46,7 @@ class Sum(Module):
     def process(self, input_):
         """Returns a Sum instance that holds the summed input.
         
-        For strings the summed input is the concatenation of the stirngs in
+        For strings the summed input is the concatenation of the strings in
         the input.
         
         """
@@ -61,5 +61,6 @@ def process(module, input_):
 
 _SUM = Sum()
      
-def sum_(input_):
+def sum_input(input_):
+    """Processes the input with the Sum module and returns the resulting output."""
     return _SUM.process(input_).get_output()
