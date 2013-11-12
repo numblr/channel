@@ -35,14 +35,14 @@ class NoInputTestCase(object):
         output = self.channel.send(())
         self.assertEquals(output, self.expected_no_input)
 
-class RepetitionTestCase(object):
+class MemorylessTestCase(object):
     def test_repeated_send(self):
-        for _ in range(5):
+        for i in range(5):
             output = self.channel.send(TUPLE_INPUT)
-            self.assertEquals(output, self.expected_tuple_input)
+            self.assertEquals(output, self.expected_tuple_input, "Failed at {0}".format(i))
 
     def test_consecutive_send(self):
-        for _ in range(5):
+        for i in range(5):
             value = self.channel.send(TUPLE_INPUT)
-            self.assertEquals(value, self.expected_tuple_input)
+            self.assertEquals(value, self.expected_tuple_input, "Failed at {0}".format(i))
 

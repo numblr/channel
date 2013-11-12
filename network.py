@@ -23,7 +23,7 @@ class NetworkDefinition():
     def available_module_ids(self):
         """Returns the ids of the modules defined in the current instance."""
         return [module.id for module in self.__modules]
-        
+
     def add_module(self, module_id, module_type):
         """Adds the given module_type with the given module_id to the definition.
         

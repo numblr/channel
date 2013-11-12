@@ -3,24 +3,24 @@ from modular.channels.string_channels import echo_channel, reverse_channel, \
     delay_channel, DELAY_INITIAL, process_sequence, sum_channel
 from unittest import TestCase, main
 from modular.test.channels.base import ChannelTestCase, NoInputTestCase,\
-    RepetitionTestCase
+    MemorylessTestCase
 from modular.channels._channels import memoryless_channel
 
-class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, RepetitionTestCase):
+class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
         self.channel = sum_channel()
         self.expected_string_input = "test"
         self.expected_tuple_input = "onetwothree"
         self.expected_no_input = ""
 
-class EchoTestCase(TestCase, ChannelTestCase, NoInputTestCase, RepetitionTestCase):
+class EchoTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
         self.channel = echo_channel()
         self.expected_string_input = "testtest"
         self.expected_tuple_input = "onetwothreeonetwothree"
         self.expected_no_input = ""
 
-class ReverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, RepetitionTestCase):
+class ReverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
         self.channel = reverse_channel()
         self.expected_string_input = "tset"

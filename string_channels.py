@@ -2,7 +2,7 @@ from itertools import chain
 from modular.channels._channels import shift_channel, memoryless_channel, \
     multi_input_channel
 
-DELAY_INITIAL = "Hello"
+DELAY_INITIAL = "hello"
 
 _MAX_LENGTH = 10000
 
