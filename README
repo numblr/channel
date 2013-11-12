@@ -1,7 +1,7 @@
 Solution to Task 4: Modular Madness
 ==================================================
 
-Run the program by
+Run the program as
 
 >python application.py
 
@@ -13,3 +13,10 @@ with python 3.
 
 The "modular" directory contains the source code
 of the application and tests.
+
+
+==================================================
+
+
+Thomas Baier
+tbaier@math.bme.hu
