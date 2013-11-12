@@ -130,7 +130,7 @@ class NetworkFactory():
     def __create_network_channel(self, network_definition):
         modules, connections = network_definition._get_state()
         if not all(module.channel in self.__channels.keys() for module in modules):
-            raise KeyError("Definition contains unsuppoted module types")
+            raise KeyError("Definition contains unsupported module types")
         
         return self.__create(modules, connections, self.__channels)
 

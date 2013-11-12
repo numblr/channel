@@ -1,11 +1,12 @@
+from itertools import islice
+from modular.channels._module import Module
 from modular.channels._network import network_channel
 from modular.channels.network import NetworkDefinition, UndefinedNameError, \
     NameConflictError, IllegalOrderError, NetworkFactory
 from modular.channels.string_channels import DELAY_INITIAL, sum_channel, \
-    reverse_channel, delay_channel
+    reverse_channel, delay_channel, process_sequence
 from modular.test.channels.base import ChannelTestCase, NoInputTestCase
 from unittest import TestCase, main
-from modular.channels._module import Module
 
 class NetworkDefinitionTestCase(TestCase):
     def setUp(self):
@@ -124,11 +125,25 @@ class NetworkFactoryTestCase(TestCase):
         self.assertEquals(output_1, DELAY_INITIAL)
         self.assertEquals(output_2, DELAY_INITIAL)
         
+    def test_create_and_start_multiple_times(self):
+        test_channel = self.__create_delay(self.factory)
+        
+        for i in range(5):
+            outputs = process_sequence(test_channel(), ("test", ))
+
+            self.assertEquals(tuple(islice(outputs, 3)), (DELAY_INITIAL, "test", ""), "Failed at {0}".format(i))
+        
+    def __create_delay(self, factory):    
+        definition = NetworkDefinition(self.factory.available_module_types())
+        definition.add_module("test", "delay")
+        
+        return factory.create(definition)
+    
     def __create_and_process_delay(self, factory):
         definition = NetworkDefinition(self.factory.available_module_types())
         definition.add_module("test", "delay")
         
-        test_network = factory.create(definition)()
+        test_network = self.__create_delay(factory)()
         
         return test_network.send("test")
         
@@ -164,6 +179,10 @@ class NetworkTestCase(TestCase, ChannelTestCase, NoInputTestCase):
         expected = (DELAY_INITIAL, "", "", "", "")
         
         self.__assert_processed(net, input_, expected)
+        
+    def test_multiple_calls_to_channel_function(self):
+        for _ in range(5):
+            self.test_no_path_to_output()
         
     def __assert_processed(self, network, input_, expected):
         for i in range(0, len(expected)):

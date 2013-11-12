@@ -12,6 +12,7 @@ def network_channel(modules, connections):
     started_modules = [module._start() for module in modules]
     process = partial(_process_modules, modules=started_modules, connections=connections)
     
+    #The process operation keeps the memory of the network
     return memoryless_channel(process)
     
 def _process_modules(input_, modules, connections):
