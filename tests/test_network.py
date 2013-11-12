@@ -50,7 +50,7 @@ class NetworkDefinitionTestCase(TestCase):
         self.definition.add_module("three", "typetwo")
         self.definition.add_module("four", "typeone")
         
-    def test_invalid_module_type(self):
+    def test_invalid_channel_type(self):
         self.assertRaisesRegexp(UndefinedNameError, "other", self.definition.add_module, "test", "other")
 
     def test_conflicting_module_name(self):
@@ -75,10 +75,10 @@ class NetworkDefinitionTestCase(TestCase):
         
         self.assertRaisesRegexp(NameConflictError, "\"one\" is already connected to \"two\"", self.definition.add_connection, "one", "two")
         
-TEST_FACTORIES = {"sum": sum_channel, "reverse": reverse_channel, "delay": delay_channel}
+TEST_CHANNELS = {"sum": sum_channel, "reverse": reverse_channel, "delay": delay_channel}
 
-def create_test_definition(module_types):
-    definition = NetworkDefinition(module_types)
+def create_test_definition(channel_types):
+    definition = NetworkDefinition(channel_types)
     definition.add_module("one", "sum")
     definition.add_module("two", "reverse")
     
@@ -86,14 +86,14 @@ def create_test_definition(module_types):
     
     return definition
 
-TEST_DEFINITION = create_test_definition(TEST_FACTORIES.keys())
+TEST_DEFINITION = create_test_definition(TEST_CHANNELS.keys())
         
 class NetworkFactoryTestCase(TestCase):
     def setUp(self):
-        self.factory = NetworkFactory(TEST_FACTORIES.copy())
+        self.factory = NetworkFactory(TEST_CHANNELS.copy())
         
     def test_available_types(self):
-        self.assertItemsEqual(self.factory.available_module_types(), ("sum", "reverse", "delay"))
+        self.assertItemsEqual(self.factory.available_channel_types(), ("sum", "reverse", "delay"))
         
     def test_create(self):
         test_network = self.factory.create(TEST_DEFINITION)()
@@ -102,14 +102,14 @@ class NetworkFactoryTestCase(TestCase):
         self.assertEquals(output, "tset")
         
     def test_define(self):
-        self.factory.define_module_type("test", TEST_DEFINITION)
+        self.factory.define_channel_type("test", TEST_DEFINITION)
         
-        self.assertItemsEqual(self.factory.available_module_types(), ("sum", "reverse", "delay", "test"))
+        self.assertItemsEqual(self.factory.available_channel_types(), ("sum", "reverse", "delay", "test"))
         
     def test_define_and_use(self):
-        self.factory.define_module_type("test", TEST_DEFINITION)
+        self.factory.define_channel_type("test", TEST_DEFINITION)
         
-        definition = NetworkDefinition(self.factory.available_module_types())
+        definition = NetworkDefinition(self.factory.available_channel_types())
         definition.add_module("test", "test")
         
         test_network = self.factory.create(definition)()
@@ -134,13 +134,13 @@ class NetworkFactoryTestCase(TestCase):
             self.assertEquals(tuple(islice(outputs, 3)), (DELAY_INITIAL, "test", ""), "Failed at {0}".format(i))
         
     def __create_delay(self, factory):    
-        definition = NetworkDefinition(self.factory.available_module_types())
+        definition = NetworkDefinition(self.factory.available_channel_types())
         definition.add_module("test", "delay")
         
         return factory.create(definition)
     
     def __create_and_process_delay(self, factory):
-        definition = NetworkDefinition(self.factory.available_module_types())
+        definition = NetworkDefinition(self.factory.available_channel_types())
         definition.add_module("test", "delay")
         
         test_network = self.__create_delay(factory)()
@@ -148,7 +148,7 @@ class NetworkFactoryTestCase(TestCase):
         return test_network.send("test")
         
     def test_define_with_name_conflict(self):
-        self.assertRaisesRegexp(NameConflictError, "sum", self.factory.define_module_type, "sum", TEST_DEFINITION)
+        self.assertRaisesRegexp(NameConflictError, "sum", self.factory.define_channel_type, "sum", TEST_DEFINITION)
         
 MODULES = (Module("a", sum_channel), Module("b", reverse_channel), Module("c", delay_channel))
 CONNECTIONS = {"b": "a", "c": "b"}

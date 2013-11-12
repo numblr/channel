@@ -40,31 +40,31 @@ class NetworkDefinition():
     modules are not permited.
     
     """
-    def __init__(self, module_types):
+    def __init__(self, channel_types):
         """Initializes a new instance from an iterable of allowed module types."""
         self.__modules = ()
         self.__connections = {}
-        self.__module_types = tuple(module_types)
+        self.__channel_types = tuple(channel_types)
 
     def available_module_ids(self):
         """Returns a list with the ids of the modules defined in the current instance."""
         return [module.id for module in self.__modules]
 
-    def add_module(self, module_id, module_type):
-        """Adds the given module_type with the given module_id to the definition.
+    def add_module(self, module_id, channel_type):
+        """Adds the given channel_type with the given module_id to the definition.
         
         If the current instance already contains a module with the given
         module_id, a NameConflictError is raised. If the current instance does
-        not accept the specified module_type, an UndefinedNameError is raised.
+        not accept the specified channel_type, an UndefinedNameError is raised.
         
         """
-        if module_type not in self.__module_types:
-            raise UndefinedNameError("\"{0}\" is not defined".format(module_type))
+        if channel_type not in self.__channel_types:
+            raise UndefinedNameError("\"{0}\" is not defined".format(channel_type))
 
         if module_id in self.available_module_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
         
-        self.__modules = self.__modules + (Module(module_id, module_type), )
+        self.__modules = self.__modules + (Module(module_id, channel_type), )
         
     def add_connection(self, from_module, to_module):
         """Adds a connection from from_module to to_module to the current instance.
@@ -105,13 +105,13 @@ class NetworkFactory():
     def __init__(self, channels):
         """Initializes a new instance with the given channels.
         
-        channels must privide a mapping from a module type to a factories
+        channels must privide a mapping from a module type to a channels
         function for the corresponding Module instances.
         
         """
         self.__channels = channels.copy()
         
-    def available_module_types(self):
+    def available_channel_types(self):
         """Returns a list of the available module type identifiers."""
         return self.__channels.keys()
         
@@ -133,11 +133,11 @@ class NetworkFactory():
         
         return partial(network_channel, modules_instances, connections)
 
-    def define_module_type(self, module_type, network_definition):
+    def define_channel_type(self, channel_type, network_definition):
         """Adds support for Network modules based on the given definition to the current instance.
         
         After defining a module type, the create method on the current instance
-        accepts network_channel definitions containing the specified module_type
+        accepts network_channel definitions containing the specified channel_type
         identifier. For these entries a Network module based on
         network_definition will be created in the resulting Network.
         
@@ -147,10 +147,10 @@ class NetworkFactory():
         a KeyError is raised.
 
         """
-        if module_type in self.__channels:
-            raise NameConflictError("\"{0}\" is already defined".format(module_type))
+        if channel_type in self.__channels:
+            raise NameConflictError("\"{0}\" is already defined".format(channel_type))
             
-        self.__channels[module_type] = self.__create_network_channel(network_definition)
+        self.__channels[channel_type] = self.__create_network_channel(network_definition)
         
     #this creates a an generator function
     def __create_network_channel(self, network_definition):
