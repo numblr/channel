@@ -1,6 +1,5 @@
-from collections import OrderedDict
 from functools import partial
-from modular.channels.channels import init_channel, memoryless_channel
+from modular.channels._network import network
 
 class NetworkDefinition():
     """Specifies an ordered list of named Modules and directed connections between them.
@@ -123,7 +122,7 @@ class NetworkFactory():
         if module_type in self.__channels:
             raise NameConflictError("\"{0}\" is already defined".format(module_type))
             
-        self.__channels[module_type] = self.__create_network_factory(network_definition)
+        self.__channels[module_type] = self.__create_network_channel(network_definition)
         
     #this creates a an generator function
     def __create_network_channel(self, network_definition):
@@ -133,36 +132,6 @@ class NetworkFactory():
         
         return self.__create(modules, connections, self.__channels)
 
-def network(modules, connections):
-    if not modules:
-        return ""
-
-    init_modules = [(id_, init_channel(channel)) for id_, channel in modules]
-    
-    return memoryless_channel(partial(_process_modules, modules = init_modules, connections = connections))
-    
-def _process_modules(self, input_, modules, connections):
-    #Modules are outputs in the order of their definition. This is
-    #guaranteed to work by the conditions in the NetworkDefinition. 
-    #The algorithm could be improved by depth-first search like processing. 
-    outputs = OrderedDict()
-    
-    first_module_id, first_channel = modules[0]
-    outputs[first_module_id] = first_channel.send(input_)
-    
-    for module_id, channel in modules[1:]:
-        outputs = _process_module(module_id, channel, outputs)
-    
-    return outputs.values()[-1]
-    
-def _process_module(module_id, channel, outputs, connections):
-    input_modules = connections[module_id] if module_id in connections else () 
-    input_values = (outputs[input_id].get_output() for input_id in input_modules)
-    
-    outputs[module_id] = channel.send(input_values)
-    
-    return outputs
-    
 class NameConflictError(Exception):
     def __init__(self, value):
         self.value = value

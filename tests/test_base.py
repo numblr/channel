@@ -1,7 +1,8 @@
-from modular.channels.channels import sum_channel, init_channel
+from modular.channels.channels import init_channel
 from modular.test.channels.base import ChannelTestCase, RepetitionTestCase, \
     NoInputTestCase
 from unittest import TestCase, main
+from modular.channels.string_channels import sum_channel
 
 class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, RepetitionTestCase):
     def setUp(self):

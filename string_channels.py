@@ -1,26 +1,45 @@
-from modular.channels.channels import DELAY_INITIAL, shift_channel,\
-    memoryless_channel, chain
+from itertools import chain 
+from modular.channels.channels import shift_channel, memoryless_channel, \
+    multi_input_channel
 
-def multi_input_channel(channel):
-    return chain(sum_channel, channel)
+DELAY_INITIAL = "Hello"
 
-def delay_channel():
-    return shift_channel(1, [DELAY_INITIAL])
-        
-def echo_channel():
-    return memoryless_channel(_echo)
-    
-def _echo(value):
-    return value * 2
-
-def reverse_channel():
-    return memoryless_channel(_reverse)
-    
-def _reverse(value):
-    return value[::-1]
+def _sum(value):
+    return "".join(value)
 
 def sum_channel():
     return memoryless_channel(_sum)
 
-def _sum(value):
-    return "".join(value)
+@multi_input_channel(sum_channel)
+def delay_channel():
+    return shift_channel(1, [DELAY_INITIAL])
+    
+def _echo(value):
+    return value * 2
+        
+@multi_input_channel(sum_channel)
+def echo_channel():
+    return memoryless_channel(_echo)
+    
+def _reverse(value):
+    return value[::-1]
+
+@multi_input_channel(sum_channel)
+def reverse_channel():
+    return memoryless_channel(_reverse)
+
+def process_sequence(channel, input_sequence):
+    """Returns an infinite generator of output strings for the given sequence of inputs.
+    
+    The input_sequence must be a single string, a sequence of strings or a
+    sequence of sequences of strings.
+    
+    The generator contains the output values of the module that is consecutively feed
+    with the elements from the input sequence followed by an infinte sequence of empty
+    strings. None values in the output are converted to empty strings.
+    
+    """
+    inputs = chain(input_sequence, iter(str, "infinite generator of empty strings"))
+
+    return (channel.send(input_) for input_ in inputs)
+

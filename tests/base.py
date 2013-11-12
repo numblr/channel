@@ -17,10 +17,6 @@ class ChannelTestCase():
 
         self.assertEquals(output, self.expected_tuple_input)
         
-    def test_repeated_send(self):
-        for _ in range(5):
-            self.test_multiple()
-
     def test_generator(self):
         input_ = (c for c in TUPLE_INPUT)
         output = self.channel.send(input_)
