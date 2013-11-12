@@ -1,5 +1,6 @@
 from functools import partial
-from modular.channels._network import network
+from modular.channels._network import network_channel
+from modular.channels._module import Module
 
 class NetworkDefinition():
     """Specifies an ordered list of named Modules and directed connections between them.
@@ -21,7 +22,7 @@ class NetworkDefinition():
 
     def available_module_ids(self):
         """Returns the ids of the modules defined in the current instance."""
-        return [id_ for id_, _ in self.__modules]
+        return [module.id for module in self.__modules]
         
     def add_module(self, module_id, module_type):
         """Adds the given module_type with the given module_id to the definition.
@@ -37,7 +38,7 @@ class NetworkDefinition():
         if module_id in self.available_module_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
         
-        self.__modules = self.__modules + ((module_id, module_type), )
+        self.__modules = self.__modules + (Module(module_id, module_type), )
         
     def add_connection(self, from_module, to_module):
         """Adds a connection from from_module to to_module to the current instance.
@@ -101,15 +102,16 @@ class NetworkFactory():
         return self.__create(modules, connections, self.__channels)
     
     def __create(self, modules, connections, channels):
-        modules_instances = [(id_, self.__channels[type_]) for id_, type_ in modules]
+        channels = self.__channels
+        modules_instances = [Module(module.id, channels[module.channel]) for module in modules]
         
-        return partial(network, modules_instances, connections)
+        return partial(network_channel, modules_instances, connections)
 
     def define_module_type(self, module_type, network_definition):
         """Adds support for Network modules based on the given definition to the current instance.
         
         After defining a module type, the create method on the current instance
-        accepts network definitions containing the specified module_type
+        accepts network_channel definitions containing the specified module_type
         identifier. For these entries a Network module based on
         network_definition will be created in the resulting Network.
         
@@ -127,7 +129,7 @@ class NetworkFactory():
     #this creates a an generator function
     def __create_network_channel(self, network_definition):
         modules, connections = network_definition._get_state()
-        if not all(type_ in self.__channels.keys() for _, type_ in modules):
+        if not all(module.channel in self.__channels.keys() for module in modules):
             raise KeyError("Definition contains unsuppoted module types")
         
         return self.__create(modules, connections, self.__channels)

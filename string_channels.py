@@ -1,11 +1,13 @@
 from itertools import chain 
-from modular.channels.channels import shift_channel, memoryless_channel, \
+from modular.channels._channels import shift_channel, memoryless_channel, \
     multi_input_channel
 
 DELAY_INITIAL = "Hello"
 
+_MAX_LENGTH = 10000
+
 def _sum(value):
-    return "".join(value)
+    return "".join(value)[:_MAX_LENGTH]
 
 def sum_channel():
     return memoryless_channel(_sum)
@@ -15,7 +17,7 @@ def delay_channel():
     return shift_channel(1, [DELAY_INITIAL])
     
 def _echo(value):
-    return value * 2
+    return (value * 2)[:_MAX_LENGTH]
         
 @multi_input_channel(sum_channel)
 def echo_channel():

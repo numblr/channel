@@ -1,10 +1,11 @@
-from modular.channels._network import network
+from modular.channels._network import network_channel
 from modular.channels.network import NetworkDefinition, UndefinedNameError, \
     NameConflictError, IllegalOrderError, NetworkFactory
 from modular.channels.string_channels import DELAY_INITIAL, sum_channel, \
     reverse_channel, delay_channel
 from modular.test.channels.base import ChannelTestCase, NoInputTestCase
 from unittest import TestCase, main
+from modular.channels._module import Module
 
 class NetworkDefinitionTestCase(TestCase):
     def setUp(self):
@@ -28,10 +29,10 @@ class NetworkDefinitionTestCase(TestCase):
         self.definition.add_connection("three", "four")
         self.definition.add_connection("one", "four")
         
-        expected_modules = (("one", "typeone"),
-                            ("two", "typetwo"),
-                            ("three", "typetwo"),
-                            ("four", "typeone"))
+        expected_modules = (Module("one", "typeone"),
+                            Module("two", "typetwo"),
+                            Module("three", "typetwo"),
+                            Module("four", "typeone"))
         
         expected_connections = {"two": ("one", ),
                                 "three": ("two", ),
@@ -134,13 +135,13 @@ class NetworkFactoryTestCase(TestCase):
     def test_define_with_name_conflict(self):
         self.assertRaisesRegexp(NameConflictError, "sum", self.factory.define_module_type, "sum", TEST_DEFINITION)
         
-MODULES = (("a", sum_channel), ("b", reverse_channel), ("c", delay_channel))
+MODULES = (Module("a", sum_channel), Module("b", reverse_channel), Module("c", delay_channel))
 CONNECTIONS = {"b": "a", "c": "b"}
 INCOMPLETE_CONNECTIONS = {"b": "a"}
 
 class NetworkTestCase(TestCase, ChannelTestCase, NoInputTestCase):
     def setUp(self):
-        self.channel = network(MODULES, CONNECTIONS.copy())
+        self.channel = network_channel(MODULES, CONNECTIONS.copy())
         self.expected_string_input = DELAY_INITIAL
         self.expected_tuple_input = DELAY_INITIAL
         self.expected_no_input = DELAY_INITIAL
@@ -157,7 +158,7 @@ class NetworkTestCase(TestCase, ChannelTestCase, NoInputTestCase):
         self.__assert_processed(self.channel, input_, expected)
         
     def test_no_path_to_output(self):
-        net = network(MODULES, INCOMPLETE_CONNECTIONS.copy())
+        net = network_channel(MODULES, INCOMPLETE_CONNECTIONS.copy())
 
         input_ = ("hello", "world", "", "", "", "")
         expected = (DELAY_INITIAL, "", "", "", "")
