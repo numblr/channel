@@ -8,13 +8,13 @@ def network_channel(modules, connections):
         empty = (None for _ in range(2))
         empty.next()
         
-        #Returns None on the first send call and exits.
+        #Returns None on the first call to send and terminates.
         return empty
 
     started_modules = [module._start() for module in modules]
     process = partial(_process_modules, modules=started_modules, connections=connections)
     
-    #The process operation keeps the memory of the network
+    #The state of the network is confined in the started modules
     return memoryless_channel(process)
     
 def _process_modules(input_, modules, connections):

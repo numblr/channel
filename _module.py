@@ -1,6 +1,7 @@
 """A Module represents a named processing channel."""
 class Module():
     def __init__(self, id_, channel):
+        """Initialize a new instance from an id and a channel type, channel or initialized channel."""
         self.id = id_
         self.channel = channel
     

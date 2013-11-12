@@ -93,7 +93,17 @@ class NetworkFactory():
     
     Supports the channel types provided at construction and allows the
     definition of new channel types from a NetworkDefinition.
-        
+    
+    The created network channel has the following behviour:
+    
+    The input to is feed to the first module in the network.
+    
+    Modules are processed in their topolocial order according to the specified
+    connections. If the network contains no module, the output is None.  
+    
+    The output is the output of the last module in the network, even if there
+    is no connected from the input module.
+    
     """
     def __init__(self, channels):
         """Initializes a new instance with the given channels.
@@ -108,7 +118,6 @@ class NetworkFactory():
         """Returns a list of the available module type identifiers."""
         return self.__channels.keys()
         
-    #this creates a an generator function
     def create(self, network_definition):
         """Returns a network channel based on the given NetworkDefinition.
         
