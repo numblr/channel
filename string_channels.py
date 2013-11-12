@@ -24,7 +24,7 @@ def _sum(value):
     return "".join(value)[:_MAX_LENGTH]
 
 def sum_channel():
-    """Returns an initialized generator that outputs the concatenated the strings in the input."""
+    """Returns an initialized generator that outputs the concatenated strings in the input."""
     return memoryless_channel(_sum)
 
 @multi_input_channel(sum_channel)

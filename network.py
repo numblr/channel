@@ -1,7 +1,11 @@
 """Input processing by a network of named modules.
 
-Each module has a channel that executes a simple task on its input. The inputs
-of a module can be connected to outputs of other modules.
+Allows definition and creation of networks of processing units (modules). Each
+module has a channel that executes a simple task on its input. The outputs of a
+module can be connected to inputs of other modules.
+
+The structure of the network is created via a NetworkDefinition by adding
+modules and connections between them.
 
 A network is a channel itself and can be created from a NetworkFactory.
 The building blocks of the network are the channels available to the
@@ -94,7 +98,7 @@ class NetworkFactory():
     Supports the channel types provided at construction and allows the
     definition of new channel types from a NetworkDefinition.
     
-    The created network channel has the following behviour:
+    The created network channels have the following behviour:
     
     The input to is feed to the first module in the network.
     

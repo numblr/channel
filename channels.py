@@ -8,7 +8,7 @@ using its send method:
 >>> output = initialized_channel.send(input)
 
 The generator is imediatelly initialized, that is, the first call to the
-generator should already contain the first input value, not None.
+send method should already contain the first input value, not None.
 
 shift_channel -- process consecutive inputs and output them shifted against the input
 memoryless_channel -- process consecutive inputs independently 
