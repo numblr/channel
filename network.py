@@ -99,7 +99,9 @@ class NetworkFactory():
     The input to is feed to the first module in the network.
     
     Modules are processed in their topolocial order according to the specified
-    connections. If the network contains no module, the output is None.  
+    connections. If the network contains no module, the output is None. The
+    inputs of the individual modules are processed in the order in which they
+    are specified in the network definition.  
     
     The output is the output of the last module in the network, even if there
     is no connected from the input module.
