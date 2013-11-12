@@ -40,6 +40,6 @@ def process_sequence(channel, input_sequence):
     
     """
     inputs = chain(input_sequence, iter(str, "infinite generator of empty strings"))
-
-    return (channel.send(input_) for input_ in inputs)
-
+    raw_outputs = (channel.send(input_) for input_ in inputs)
+    
+    return (output if output else "" for output in raw_outputs)

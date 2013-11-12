@@ -1,13 +1,15 @@
 from collections import OrderedDict
 from functools import partial
-from modular.channels.channels import init_channel, memoryless_channel
+from modular.channels.channels import memoryless_channel
 
 def network(modules, connections):
     if not modules:
-        #We need to yield at least two values because of the generator initialization
-        return (None for _ in range(2))
+        empty = (None for _ in range(2))
+        empty.next()
+        
+        return empty
 
-    init_modules = [(id_, init_channel(channel)) for id_, channel in modules]
+    init_modules = [(id_, channel()) for id_, channel in modules]
     
     return memoryless_channel(partial(_process_modules, modules = init_modules, connections = connections))
     
