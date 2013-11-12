@@ -1,12 +1,38 @@
+"""Input processing by a network of named modules.
+
+Each module has a channel that executes a simple task on its input. The inputs
+of a module can be connected to outputs of other modules.
+
+The channel in a module is a generator function that creates an initalized
+generator. Processing of input is done by sending the input to the generator
+using its send method:
+
+>>> initialized_channel = channel()
+>>> output = initialized_channel.send(input)
+
+The generator is imediatelly initialized, that is, the first call to the
+generator should already contain the first input value, not None.
+
+A network is a channel itself and can be created from a NetworkFactory.
+The building blocks of the network are channels available to the NetworkFactory
+instance. New channels types can be created in the NetworkFactory instance
+based on a NetworkDefinition. 
+
+Classes:
+
+NetworkDefinition -- Definition of the structure of the network based on identifiers
+NetworkFactory -- Creation of network channels and new module type definition from a network definition
+
+"""
 from functools import partial
 from modular.channels._network import network_channel
 from modular.channels._module import Module
 
 class NetworkDefinition():
-    """Specifies an ordered list of named Modules and directed connections between them.
+    """Specifies an ordered list of named modules and directed connections between them.
     
-    The NetworkDefinition can be built by adding new modules with a unique id and
-    specifing connections between already added modules by specifing their ids.
+    The NetworkDefinition can be edited by adding new modules with a unique id
+    and specifing connections between already added modules by via their ids.
     
     The order of the modules in the definition is the order in which they where
     added. Connections can only be created from Module A to B if A < B, that is,
@@ -15,13 +41,13 @@ class NetworkDefinition():
     
     """
     def __init__(self, module_types):
-        """Initializes a new instance with an iterable of allowed module types."""
+        """Initializes a new instance from an iterable of allowed module types."""
         self.__modules = ()
         self.__connections = {}
         self.__module_types = tuple(module_types)
 
     def available_module_ids(self):
-        """Returns the ids of the modules defined in the current instance."""
+        """Returns a list with the ids of the modules defined in the current instance."""
         return [module.id for module in self.__modules]
 
     def add_module(self, module_id, module_type):
@@ -71,7 +97,7 @@ class NetworkDefinition():
         return self.__modules, self.__connections.copy()
     
 class NetworkFactory():
-    """Creates Network instances from a NetworkDefinition.
+    """Creates network channels from a NetworkDefinition.
     
     New compound module types can be defined from a NetworkDefinition.
         
@@ -79,7 +105,7 @@ class NetworkFactory():
     def __init__(self, channels):
         """Initializes a new instance with the given channels.
         
-        channels must privide a mapping from a module type to a factory
+        channels must privide a mapping from a module type to a factories
         function for the corresponding Module instances.
         
         """
