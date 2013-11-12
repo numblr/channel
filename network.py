@@ -3,25 +3,17 @@
 Each module has a channel that executes a simple task on its input. The inputs
 of a module can be connected to outputs of other modules.
 
-The channel in a module is a generator function that creates an initalized
-generator. Processing of input is done by sending the input to the generator
-using its send method:
-
->>> initialized_channel = channel()
->>> output = initialized_channel.send(input)
-
-The generator is imediatelly initialized, that is, the first call to the
-generator should already contain the first input value, not None.
-
 A network is a channel itself and can be created from a NetworkFactory.
-The building blocks of the network are channels available to the NetworkFactory
-instance. New channels types can be created in the NetworkFactory instance
-based on a NetworkDefinition. 
+The building blocks of the network are the channels available to the
+NetworkFactory instance. New channels types can be created in the
+NetworkFactory instance based on a NetworkDefinition. 
 
 Classes:
 
 NetworkDefinition -- Definition of the structure of the network based on identifiers
-NetworkFactory -- Creation of network channels and new module type definition from a network definition
+NetworkFactory -- Creation of network channels based on standard and custom defined channels from a network definition
+
+See also modular.channels.channels
 
 """
 from functools import partial
@@ -99,13 +91,14 @@ class NetworkDefinition():
 class NetworkFactory():
     """Creates network channels from a NetworkDefinition.
     
-    New compound module types can be defined from a NetworkDefinition.
+    Supports the channel types provided at construction and allows the
+    definition of new channel types from a NetworkDefinition.
         
     """
     def __init__(self, channels):
         """Initializes a new instance with the given channels.
         
-        channels must privide a mapping from a module type to a channels
+        channels must privide a mapping from a channels type to a channels
         function for the corresponding Module instances.
         
         """
@@ -117,7 +110,11 @@ class NetworkFactory():
         
     #this creates a an generator function
     def create(self, network_definition):
-        """Returns a new Network instance based on the given NetworkDefinition.
+        """Returns a network channel based on the given NetworkDefinition.
+        
+        The returned network channel is a generator function that returns an
+        initialized generator that processes input via its send method (See
+        also modular.channels.channels).
         
         If the specified network_definition contains module types that are not
         accepted by the current instance, a KeyError is raised.
@@ -134,14 +131,13 @@ class NetworkFactory():
         return partial(network_channel, modules_instances, connections)
 
     def define_channel_type(self, channel_type, network_definition):
-        """Adds support for Network modules based on the given definition to the current instance.
+        """Adds support for a new channel type based on the given definition to the current instance.
         
-        After defining a module type, the create method on the current instance
-        accepts network_channel definitions containing the specified channel_type
-        identifier. For these entries a Network module based on
-        network_definition will be created in the resulting Network.
+        After defining a channel type, the create method on the current instance
+        accepts network definitions containing the specified channel type
+        identifier.
         
-        If there is already a module type with the given identifier, a
+        If there exitst already a channel type with the given identifier, a
         NameConflictError is raised. If the specified network_definition
         contains module types that are not accepted by the current instance,
         a KeyError is raised.
@@ -152,7 +148,6 @@ class NetworkFactory():
             
         self.__channels[channel_type] = self.__create_network_channel(network_definition)
         
-    #this creates a an generator function
     def __create_network_channel(self, network_definition):
         modules, connections = network_definition._get_state()
         if not all(module.channel in self.__channels.keys() for module in modules):

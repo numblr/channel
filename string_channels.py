@@ -1,5 +1,19 @@
-from itertools import chain 
-from modular.channels._channels import shift_channel, memoryless_channel, \
+"""Channels that process string input.
+
+All channels accept either a single string or a sequence of strings as input.
+The output maybe truncated if it becomes unreasonably large.
+
+sum_channel -- outputs the concatenate the strings in the input
+delay_channel -- outputs the previous summed input strings 
+echo channel -- outputs the summed input concatenated with itself
+reverse_channel -- outputs the reverse summed input
+process_sequence -- helper function to process a sequence of inputs on a channel
+
+See also modular.channels.channels
+
+"""
+from itertools import chain
+from modular.channels.channels import shift_channel, memoryless_channel, \
     multi_input_channel
 
 DELAY_INITIAL = "hello"
@@ -10,10 +24,12 @@ def _sum(value):
     return "".join(value)[:_MAX_LENGTH]
 
 def sum_channel():
+    """Returns an initialized generator that outputs the concatenated the strings in the input."""
     return memoryless_channel(_sum)
 
 @multi_input_channel(sum_channel)
 def delay_channel():
+    """Returns an initialized generator that outputs the previous summed input."""
     return shift_channel(1, [DELAY_INITIAL])
     
 def _echo(value):
@@ -21,6 +37,7 @@ def _echo(value):
         
 @multi_input_channel(sum_channel)
 def echo_channel():
+    """Returns an initialized generator that outputs the summed input concatenated with itself."""
     return memoryless_channel(_echo)
     
 def _reverse(value):
@@ -28,6 +45,7 @@ def _reverse(value):
 
 @multi_input_channel(sum_channel)
 def reverse_channel():
+    """Returns an initialized generator that outputs the summed input reversed."""
     return memoryless_channel(_reverse)
 
 def process_sequence(channel, input_sequence):

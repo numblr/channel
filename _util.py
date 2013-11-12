@@ -1,3 +1,4 @@
+"""Utility functions for channels."""
 def identity(x):
     return x
 

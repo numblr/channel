@@ -1,12 +1,14 @@
+"""Composite network channel from modules and connections."""
 from collections import OrderedDict
 from functools import partial
-from modular.channels._channels import memoryless_channel
+from modular.channels.channels import memoryless_channel
 
 def network_channel(modules, connections):
     if not modules:
         empty = (None for _ in range(2))
         empty.next()
         
+        #Returns None on the first send call and exits.
         return empty
 
     started_modules = [module._start() for module in modules]
@@ -16,9 +18,8 @@ def network_channel(modules, connections):
     return memoryless_channel(process)
     
 def _process_modules(input_, modules, connections):
-    #Modules are outputs in the order of their definition. This is
-    #guaranteed to work by the conditions in the NetworkDefinition. 
-    #The algorithm could be improved by depth-first search like processing. 
+    #Modules are procesed in the order of their definition. This is
+    #guaranteed to work by the preconditions in the NetworkDefinition. 
     outputs = OrderedDict()
     
     first_module_id, first_channel = modules[0].get_state()

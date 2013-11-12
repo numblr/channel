@@ -1,5 +1,5 @@
+"""A Module represents a named processing channel."""
 class Module():
-    """A Module represents an identifiable processing channel."""
     def __init__(self, id_, channel):
         self.id = id_
         self.channel = channel
