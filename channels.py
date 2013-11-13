@@ -28,16 +28,16 @@ def shift_channel(n, initial_values = [], operation = identity):
     operation -- a function that operates on the inputs to the generator (default identity)
     
     """ 
-    if len(initial_values) > n + 1:
+    if len(initial_values) > n:
         raise ValueError("There can be at most {0} initial values: {1} where given ".format(n, len(initial_values)))
     
     length = n + 1
-    buffer_ = list(initial_values) + [None] * (length - len(initial_values))
+    buffer_ = [None] * (n - len(initial_values)) + list(initial_values) + [None] 
     
-    count = -1
+    count = n
     while True:
-        buffer_[count % length] = operation((yield buffer_[count % length]))
-        count += 1
+        buffer_[count] = operation((yield buffer_[count]))
+        count = (count + 1) % length
         
 @start
 def memoryless_channel(operation = identity):
