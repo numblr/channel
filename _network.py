@@ -1,15 +1,10 @@
 """Composite network channel from modules and connections."""
-from collections import OrderedDict
 from functools import partial
 from modular.channels.channels import memoryless_channel
 
 def network_channel(modules, connections):
     if not modules:
-        empty = (None for _ in range(2))
-        empty.next()
-        
-        #Returns None on the first call to send and terminates.
-        return empty
+        return _empty_channel()
 
     started_modules = [module._start() for module in modules]
     process = partial(_process_modules, modules=started_modules, connections=connections)
@@ -20,15 +15,17 @@ def network_channel(modules, connections):
 def _process_modules(input_, modules, connections):
     #Modules are procesed in the order of their definition. This is
     #guaranteed to work by the preconditions in the NetworkDefinition. 
-    outputs = OrderedDict()
+    outputs = {}
     
     first_module_id, first_channel = modules[0].get_state()
-    outputs[first_module_id] = first_channel.send(input_)
+    last_value = first_channel.send(input_)
+    outputs[first_module_id] = last_value
     
     for module in modules[1:]:
-        outputs = _process_module(module, outputs, connections)
+        last_value = _process_module(module, outputs, connections)
+        outputs[module.id] = last_value
     
-    return outputs.values()[-1]
+    return last_value
     
 def _process_module(module, outputs, connections):
     module_id, channel = module.get_state()
@@ -36,6 +33,11 @@ def _process_module(module, outputs, connections):
     input_modules = connections[module_id] if module_id in connections else () 
     input_values = (outputs[input_id] for input_id in input_modules)
     
-    outputs[module_id] = channel.send(input_values)
-    
-    return outputs
+    return channel.send(input_values)
+
+def _empty_channel():
+    empty = (None for _ in range(2))
+    empty.next()
+
+    #Returns None on the first call to send and terminates.
+    return empty
