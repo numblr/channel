@@ -60,7 +60,7 @@ class NetworkDefinition():
         if module_id in self.available_module_ids():
             raise NameConflictError("\"{0}\" is already defined".format(module_id))
         
-        self.__modules = self.__modules + (Module(module_id, channel_type), )
+        self.__modules += (Module(module_id, channel_type), )
         
     def add_connection(self, from_module, to_module):
         """Adds a connection from from_module to to_module to the current instance.
@@ -73,7 +73,7 @@ class NetworkDefinition():
         """
         available_modules_ids = self.available_module_ids()
         if from_module not in available_modules_ids or to_module not in available_modules_ids:
-            raise UndefinedNameError("\"{0}\" or \"{1}\" is not defined".format(from_module, to_module))
+            raise UndefinedNameError("\"{0}\" is not defined".format(from_module if from_module not in available_modules_ids else to_module))
             
         if self.__module_order(from_module) > self.__module_order(to_module):
             raise IllegalOrderError("\"{0}\" must have been defined before \"{1}\"".format(from_module, to_module))

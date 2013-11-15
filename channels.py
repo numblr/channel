@@ -1,13 +1,13 @@
 """Input processing units.
 
-A channel is a generator_function function that creates an initalized generator_function for
-input procssing. Processing is done by sending the input to the generator_function
+A channel is a generator function that creates an initalized generator for
+input procssing. Processing is done by sending the input to the generator
 using its send method:
 
 >>> initialized_channel = some_channel()
 >>> output = initialized_channel.send(input)
 
-The generator_function is imediatelly initialized, that is, the first call to the
+The generator is imediatelly initialized, that is, the first call to the
 send method should already contain the first input value, not None.
 
 shift_channel -- process consecutive inputs and output them shifted against the input
@@ -20,12 +20,12 @@ from modular.channels._util import compose, identity, start
 
 @start
 def shift_channel(n, initial_values = [], operation = identity):
-    """Returns a generator_function that returns its processed output shifted by n iterations against its input.
+    """Returns a generator that returns its processed output shifted by n iterations against its input.
     
     Keyword arguments:
     
     initial_values -- At most n default outputs for the first iterations (default empty)
-    operation -- a function that operates on the inputs to the generator_function (default identity)
+    operation -- a function that operates on the inputs to the generator (default identity)
     
     """ 
     if len(initial_values) > n:
@@ -41,11 +41,11 @@ def shift_channel(n, initial_values = [], operation = identity):
         
 @start
 def memoryless_channel(operation = identity):
-    """Returns a generator_function that processes its inputs independently and returns the output immediately.
+    """Returns a generator that processes its inputs independently and returns the output immediately.
     
     Keyword arguments:
     
-    operation -- a function that operates on the inputs to the generator_function (default identity)
+    operation -- a function that operates on the inputs to the generator (default identity)
     
     """ 
     value = None

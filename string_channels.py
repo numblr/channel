@@ -54,7 +54,7 @@ def process_sequence(channel, input_sequence):
     The input_sequence must be a single string, a sequence of strings or a
     sequence of sequences of strings.
     
-    The generator contains the output values of the module that is consecutively feed
+    The generator contains the output values of the channel that is consecutively feed
     with the elements from the input sequence followed by an infinte sequence of empty
     strings. None values in the output are converted to empty strings.
     
