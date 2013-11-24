@@ -48,10 +48,10 @@ def memoryless_channel(operation = identity):
     operation -- a function that operates on the inputs to the generator (default identity)
     
     """ 
-    value = None
+    processed_value = None
     while True:
-        value = (yield value)
-        value = operation(value)
+        value = (yield processed_value)
+        processed_value = operation(value)
 
 def multi_input_channel(sum_channel):
     """Decorator to concatenate the given sum_channel with the decorated channel."""
