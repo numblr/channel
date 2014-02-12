@@ -1,11 +1,11 @@
 from itertools import islice
-from modular.channels._module import Module
-from modular.channels._network import network_channel
-from modular.channels.network import NetworkDefinition, UndefinedNameError, \
+from .._module import Module
+from .._network import network_channel
+from ..network import NetworkDefinition, UndefinedNameError, \
     NameConflictError, IllegalOrderError, NetworkFactory
-from modular.channels.string_channels import DELAY_INITIAL, sum_channel, \
+from ..string_channels import DELAY_INITIAL, sum_channel, \
     reverse_channel, delay_channel, process_sequence
-from modular.test.channels.base import ChannelTestCase, NoInputTestCase
+from ..channels.base import ChannelTestCase, NoInputTestCase
 from unittest import TestCase, main
 
 class NetworkDefinitionTestCase(TestCase):

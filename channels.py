@@ -16,7 +16,7 @@ multi_input_channel -- decorator to concatenate a single input channel with a ch
 concatenate -- concatenate channels
 
 """
-from modular.channels._util import compose, identity, start
+from ._util import compose, identity, start
 
 @start
 def shift_channel(n, initial_values = [], operation = identity):

@@ -1,10 +1,10 @@
 from itertools import islice, chain
-from modular.channels.string_channels import echo_channel, reverse_channel, \
+from ..string_channels import echo_channel, reverse_channel, \
     delay_channel, DELAY_INITIAL, process_sequence, sum_channel
 from unittest import TestCase, main
-from modular.test.channels.base import ChannelTestCase, NoInputTestCase,\
+from ..channels.base import ChannelTestCase, NoInputTestCase,\
     MemorylessTestCase
-from modular.channels.channels import memoryless_channel
+from ..channels import memoryless_channel
 
 class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):

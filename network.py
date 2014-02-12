@@ -21,8 +21,8 @@ See also modular.channels.channels
 
 """
 from functools import partial
-from modular.channels._network import network_channel
-from modular.channels._module import Module
+from ._network import network_channel
+from ._module import Module
 
 class NetworkDefinition():
     """Specifies an ordered list of named modules and directed connections between them.

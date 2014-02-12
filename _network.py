@@ -1,6 +1,6 @@
 """Composite network channel from modules and connections."""
 from functools import partial
-from modular.channels.channels import memoryless_channel
+from .channels import memoryless_channel
 
 def network_channel(modules, connections):
     if not modules:

@@ -13,8 +13,7 @@ See also modular.channels.channels
 
 """
 from itertools import chain
-from modular.channels.channels import shift_channel, memoryless_channel, \
-    multi_input_channel
+from .channels import shift_channel, memoryless_channel, multi_input_channel
 
 DELAY_INITIAL = "hello"
 
