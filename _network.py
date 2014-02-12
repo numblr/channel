@@ -37,7 +37,7 @@ def _process_module(module, outputs, connections):
 
 def _empty_channel():
     empty = (None for _ in range(2))
-    empty.next()
+    next(empty)
 
     #Returns None on the first call to send and terminates.
     return empty

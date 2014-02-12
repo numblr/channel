@@ -11,7 +11,7 @@ def compose(f, g):
 def start(generator_function):
     def wrapper(*args):
         generator = generator_function(*args)
-        generator.next()
+        next(generator)
         
         return generator
     

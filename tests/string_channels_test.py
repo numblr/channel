@@ -2,35 +2,43 @@ from itertools import islice, chain
 from ..string_channels import echo_channel, reverse_channel, \
     delay_channel, DELAY_INITIAL, process_sequence, sum_channel
 from unittest import TestCase, main
-from ..channels.base import ChannelTestCase, NoInputTestCase,\
+from .base import ChannelTestCase, NoInputTestCase,\
     MemorylessTestCase
 from ..channels import memoryless_channel
 
 class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
         self.channel = sum_channel()
-        self.expected_string_input = "test"
+        self.single_input = "test"
+        self.tuple_input = ("one", "two", "three")
+        self.expected_single_input = "test"
         self.expected_tuple_input = "onetwothree"
         self.expected_no_input = ""
 
 class EchoTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
         self.channel = echo_channel()
-        self.expected_string_input = "testtest"
+        self.single_input = "test"
+        self.tuple_input = ("one", "two", "three")
+        self.expected_single_input = "testtest"
         self.expected_tuple_input = "onetwothreeonetwothree"
         self.expected_no_input = ""
 
 class ReverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
         self.channel = reverse_channel()
-        self.expected_string_input = "tset"
+        self.single_input = "test"
+        self.tuple_input = ("one", "two", "three")
+        self.expected_single_input = "tset"
         self.expected_tuple_input = "eerhtowteno"
         self.expected_no_input = ""
 
 class DelayTestCase(TestCase, ChannelTestCase):
     def setUp(self):
         self.channel = delay_channel()
-        self.expected_string_input = DELAY_INITIAL
+        self.single_input = "test"
+        self.tuple_input = ("one", "two", "three")
+        self.expected_single_input = DELAY_INITIAL
         self.expected_tuple_input = DELAY_INITIAL
         self.expected_no_input = DELAY_INITIAL
 
@@ -49,7 +57,7 @@ class DelayTestCase(TestCase, ChannelTestCase):
     def __test_consecutive_process(self, input_, expected):
         for input_value, expected_output in zip(input_, expected):
             output = self.channel.send(input_value)
-            self.assertEquals(output, expected_output)
+            self.assertEqual(output, expected_output)
 
 class HelperFunctionsTestCase(TestCase):
     def test_None_values(self):
@@ -61,7 +69,7 @@ class HelperFunctionsTestCase(TestCase):
         first_ten_outputs = islice(output_itr, 10)
         expected = ("one", "", "three" ) + ("", ) * 7
         
-        self.assertItemsEqual(first_ten_outputs, expected)
+        self.assertCountEqual(first_ten_outputs, expected)
         
     def test_process_sequence(self):
         channel = delay_channel()
@@ -72,7 +80,7 @@ class HelperFunctionsTestCase(TestCase):
         first_ten_outputs = islice(output_itr, 10)
         expected = (DELAY_INITIAL, ) + input_sequence + ("", ) * 6
         
-        self.assertItemsEqual(first_ten_outputs, expected)
+        self.assertCountEqual(first_ten_outputs, expected)
     
     def test_process_sequence_multiple_inputs(self):
         channel = delay_channel()
@@ -84,7 +92,7 @@ class HelperFunctionsTestCase(TestCase):
 
         expected = [DELAY_INITIAL] + ["oneone", "twotwo", "threethree"] + [""] * 6
         
-        self.assertItemsEqual(first_ten_outputs, expected)
+        self.assertCountEqual(first_ten_outputs, expected)
 
 if __name__ == "__main__":
     main()    
