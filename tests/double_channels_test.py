@@ -1,10 +1,7 @@
-from itertools import islice, chain
-from ..double_channels import inverse_channel, \
-    process_sequence, sum_channel
+from ..double_channels import sum_channel, inverse_channel, moving_average_channel
 from unittest import TestCase, main
 from .base import ChannelTestCase, NoInputTestCase,\
     MemorylessTestCase
-from ..channels import memoryless_channel
 
 class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
@@ -17,12 +14,31 @@ class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase
 
 class InverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
-        self.channel = inverse_channel()
+        self.channel = inverse_channel(4)
         self.single_input = 1
         self.tuple_input = (1, 2, 3)
         self.expected_single_input = -1
         self.expected_tuple_input = -6
         self.expected_no_input = 0
+
+class MovingAverageTestCase(TestCase, ChannelTestCase, NoInputTestCase):
+    def setUp(self):
+        self.channel = moving_average_channel(4)
+        self.single_input = 8
+        self.tuple_input = (1, 2, 3, 4, 5, 5) # sum = 20
+        self.expected_single_input = 2
+        self.expected_tuple_input = 5
+        self.expected_no_input = 0
+    
+    def testAverage(self):
+        averages_input = (self.channel.send(i) for i in range(4, 25, 4))
+        averages_zeros = (self.channel.send(i) for i in (0, ) * 5)
+        all_averages = tuple(averages_input) + tuple(averages_zeros)
+
+        expected = (1.0, 3.0, 6.0, 10.0, 14.0, 18.0, 15.0, 11.0, 6.0, 0.0, 0.0)
+
+        self.assertSequenceEqual(expected, all_averages)
+
 
 #class DelayTestCase(TestCase, ChannelTestCase):
 #    def setUp(self):

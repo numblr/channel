@@ -17,6 +17,8 @@ concatenate -- concatenate channels
 
 """
 from ._util import compose, identity, start
+from itertools import chain
+
 
 @start
 def shift_channel(n, initial_values = [], operation = identity):
@@ -56,16 +58,35 @@ def memoryless_channel(operation = identity):
 def multi_input_channel(sum_channel):
     """Decorator to concatenate the given sum_channel with the decorated channel."""
     def wrapper(channel):
-        return concatenate(sum_channel, channel)
+        def generator_function(*args, **kwargs):
+            return concatenate(sum_channel, channel, args_2=(args, kwargs))()
+        
+        return generator_function
 
     return wrapper
 
-def concatenate(channel_1, channel_2):
+def concatenate(channel_1, channel_2, args_1=((),{}), args_2=((),{})):
     """Concatenates the given channels, that is the output of channel_1 is sent to channel_2"""
     def generator_function():
-        send_1 = channel_1().send
-        send_2 = channel_2().send
+        send_1 = channel_1(*args_1[0], **args_1[1]).send
+        send_2 = channel_2(*args_2[0], **args_2[1]).send
     
         return memoryless_channel(compose(send_2, send_1))
     
     return generator_function
+
+def process_sequence(channel, input_sequence, infinite_tail, zero_val):
+    """Returns an infinite generator of output strings for the given sequence of inputs.
+    
+    The input_sequence must be a single string, a sequence of strings or a
+    sequence of sequences of strings.
+    
+    The generator contains the output values of the channel that is consecutively feed
+    with the elements from the input sequence followed by an infinte sequence of empty
+    strings. None values in the output are converted to empty strings.
+    
+    """
+    inputs = chain(input_sequence, infinite_tail)
+    raw_outputs = (channel.send(input_) for input_ in inputs)
+    
+    return (output if output else zero_val for output in raw_outputs)

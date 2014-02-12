@@ -12,9 +12,9 @@ process_sequence -- helper function to process a sequence of inputs on a channel
 See also modular.channels.channels
 
 """
-from .channels import shift_channel, memoryless_channel, multi_input_channel
-from ._util import identity
-from itertools import chain
+from .channels import memoryless_channel, multi_input_channel
+from .channels import process_sequence as process
+from ._util import identity, start
 from numpy import mean
 
 def _sum(value):
@@ -31,23 +31,23 @@ def sum_channel():
 
 
 @multi_input_channel(sum_channel)
+@start
 def moving_average_channel(n, initial_values = [], operation = identity):
-    """Returns a generator that returns the moving average over n elements in its input.
-    
-    The moving average induces a delay of n/2 steps against it's input
+    """Returns a generator that returns the moving average over n elements preceeding its input.
     
     Keyword arguments:
     
-    initial_values -- At most n default outputs for the first iterations (default empty)
+    initial_values -- At most n default values for the first iterations (default empty)
     operation -- a function that operates on the inputs to the generator (default identity)
     
     """ 
-    count = n // 2
-    if len(initial_values) > count:
+    init = list(initial_values)
+    init_value_count = len(init)
+    if init_value_count > n:
         raise ValueError("There can be at most {0} initial values: {1} where given ".format(n, len(initial_values)))
     
-    buffer_ = list(initial_values) + [0] * (n - count)
-    
+    buffer_ = init + [0] * (n - init_value_count)
+    count = 0
     while True:
         input_ = operation((yield mean(buffer_)))
         
@@ -55,34 +55,25 @@ def moving_average_channel(n, initial_values = [], operation = identity):
         count = (count + 1) % n
 
 
-@multi_input_channel(sum_channel)
-def delay_channel():
-    """Returns an initialized generator that outputs the previous summed input."""
-    return shift_channel(44100)
-
-
 def _inverse(value):
     return - value
 
 
 @multi_input_channel(sum_channel)
-def inverse_channel():
+def inverse_channel(n):
     """Returns an initialized generator that outputs the negative of the summed input."""
     return memoryless_channel(_inverse)
 
 
 def process_sequence(channel, input_sequence):
-    """Returns an infinite generator of output strings for the given sequence of inputs.
+    """Returns an infinite generator of outputs for the given sequence of inputs.
     
-    The input_sequence must be a single string, a sequence of strings or a
-    sequence of sequences of strings.
+    The input_sequence must be a single number, a sequence of numbers or a
+    sequence of sequences of numbers.
     
     The generator contains the output values of the module that is consecutively feed
-    with the elements from the input sequence followed by an infinte sequence of empty
-    strings. None values in the output are converted to empty strings.
+    with the elements from the input sequence followed by an infinte sequence of zeros.
+    None values in the output are converted to zeros.
     
     """
-    inputs = chain(input_sequence, iter(int, 1))#"infinite generator of zeros"))
-    raw_outputs = (channel.send(input_) for input_ in inputs)
-    
-    return (output for output in raw_outputs if output)
+    return process(channel, input_sequence, iter(int, 1), 0)#"infinite generator of zeros")))

@@ -9,8 +9,8 @@ def compose(f, g):
     return h
 
 def start(generator_function):
-    def wrapper(*args):
-        generator = generator_function(*args)
+    def wrapper(*args, **kwargs):
+        generator = generator_function(*args, **kwargs)
         next(generator)
         
         return generator

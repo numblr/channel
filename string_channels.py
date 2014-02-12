@@ -12,8 +12,8 @@ process_sequence -- helper function to process a sequence of inputs on a channel
 See also modular.channels.channels
 
 """
-from itertools import chain
 from .channels import shift_channel, memoryless_channel, multi_input_channel
+from .channels import process_sequence as process
 
 DELAY_INITIAL = "hello"
 
@@ -58,7 +58,4 @@ def process_sequence(channel, input_sequence):
     strings. None values in the output are converted to empty strings.
     
     """
-    inputs = chain(input_sequence, iter(str, "infinite generator of empty strings"))
-    raw_outputs = (channel.send(input_) for input_ in inputs)
-    
-    return (output if output else "" for output in raw_outputs)
+    return process(channel, input_sequence, iter(str, "infinite generator of empty strings"), "")
