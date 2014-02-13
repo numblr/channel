@@ -1,4 +1,4 @@
-from ..double_channels import sum_channel, inverse_channel, moving_average_channel
+from ..numeric_channels import sum_channel, inverse_channel, moving_average_channel
 from unittest import TestCase, main
 from .base import ChannelTestCase, NoInputTestCase,\
     MemorylessTestCase
