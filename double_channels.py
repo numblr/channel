@@ -32,7 +32,7 @@ def sum_channel():
 
 @multi_input_channel(sum_channel)
 @start
-def moving_average_channel(n, initial_values = [], operation = identity):
+def moving_average_channel(n, initial_values = [], operation = identity, zero_val=0):
     """Returns a generator that returns the moving average over n elements preceeding its input.
     
     Keyword arguments:
@@ -46,7 +46,7 @@ def moving_average_channel(n, initial_values = [], operation = identity):
     if init_value_count > n:
         raise ValueError("There can be at most {0} initial values: {1} where given ".format(n, len(initial_values)))
     
-    buffer_ = init + [0] * (n - init_value_count)
+    buffer_ = init + [zero_val] * (n - init_value_count)
     count = 0
     while True:
         input_ = operation((yield mean(buffer_)))

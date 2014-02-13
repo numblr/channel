@@ -21,7 +21,7 @@ from itertools import chain
 
 
 @start
-def shift_channel(n, initial_values = [], operation = identity):
+def shift_channel(n, initial_values = [], operation = identity, zero_val=None):
     """Returns a generator that returns its processed output shifted by n iterations against its input.
     
     Keyword arguments:
@@ -34,7 +34,7 @@ def shift_channel(n, initial_values = [], operation = identity):
         raise ValueError("There can be at most {0} initial values: {1} where given ".format(n, len(initial_values)))
     
     length = n + 1
-    buffer_ = [None] * (n - len(initial_values)) + list(initial_values) + [None] 
+    buffer_ = [zero_val] * (n - len(initial_values)) + list(initial_values) + [zero_val] 
     
     count = n
     while True:
