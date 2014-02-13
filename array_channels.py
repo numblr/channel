@@ -13,7 +13,8 @@ See also modular.channels.channels
 """
 from .channels import memoryless_channel, multi_input_channel
 from .channels import process_sequence as process
-from ._util import identity, start
+from .numeric_channels import _single_input_moving_average_channel as _numeric_moving_average
+from ._util import identity
 import numpy as np
 
 def _sum(value):
@@ -30,7 +31,6 @@ def sum_channel():
 
 
 @multi_input_channel(sum_channel)
-@start
 def moving_average_channel(n, initial_values = (), operation = identity, zero_val=0):
     """Returns a generator that returns the moving average over n elements preceeding its input.
     
@@ -42,19 +42,13 @@ def moving_average_channel(n, initial_values = (), operation = identity, zero_va
     operation -- a function that operates on the inputs to the generator (default identity)
     zero_value -- zero like value used to initialize the channel
     
-    """ 
-    init = list(initial_values)
-    init_value_count = len(init)
-    if init_value_count > n:
-        raise ValueError("There can be at most {0} initial values: {1} where given ".format(n, len(initial_values)))
-    
-    buffer_ = init + [zero_val] * (n - init_value_count)
-    count = 0
-    while True:
-        input_ = operation((yield np.mean(buffer_, axis=0)))
+    """
+    def array_operation(array):
+        np_array = np.array([i for i in array])
         
-        buffer_[count] = np.array([i for i in input_])
-        count = (count + 1) % n
+        return operation(np_array)
+
+    return _numeric_moving_average(n, initial_values, array_operation, zero_val)
         
         
 def process_sequence(channel, input_sequence, zero_val=tuple):
