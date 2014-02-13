@@ -162,6 +162,7 @@ class NetworkTestCase(TestCase, ChannelTestCase, NoInputTestCase):
         self.expected_single_input = DELAY_INITIAL
         self.expected_tuple_input = DELAY_INITIAL
         self.expected_no_input = DELAY_INITIAL
+        self.empty_val = ""
         
     def test_empty(self):
         empty_network = NetworkFactory({}).create(NetworkDefinition([]))()

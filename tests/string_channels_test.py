@@ -14,6 +14,7 @@ class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase
         self.expected_single_input = "test"
         self.expected_tuple_input = "onetwothree"
         self.expected_no_input = ""
+        self.empty_val = ""
 
 class EchoTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
@@ -23,6 +24,7 @@ class EchoTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCas
         self.expected_single_input = "testtest"
         self.expected_tuple_input = "onetwothreeonetwothree"
         self.expected_no_input = ""
+        self.empty_val = ""
 
 class ReverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
@@ -32,6 +34,7 @@ class ReverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTest
         self.expected_single_input = "tset"
         self.expected_tuple_input = "eerhtowteno"
         self.expected_no_input = ""
+        self.empty_val = ""
 
 class DelayTestCase(TestCase, ChannelTestCase):
     def setUp(self):
@@ -41,6 +44,7 @@ class DelayTestCase(TestCase, ChannelTestCase):
         self.expected_single_input = DELAY_INITIAL
         self.expected_tuple_input = DELAY_INITIAL
         self.expected_no_input = DELAY_INITIAL
+        self.empty_val = ""
 
     def test_consecutive_process(self):
         input_ = ("t", "e", "s", "t", "", "", "", "")

@@ -40,7 +40,8 @@ def shift_channel(n, initial_values = [], operation = identity, zero_val=None):
     while True:
         buffer_[count] = operation((yield buffer_[count]))
         count = (count + 1) % length
-        
+
+
 @start
 def memoryless_channel(operation = identity):
     """Returns a generator that processes its inputs independently and returns the output immediately.

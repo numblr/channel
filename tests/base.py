@@ -25,7 +25,7 @@ class NoInputTestCase(object):
         self.assertRaises(TypeError, self.channel.send, None)
 
     def test_empty(self):
-        output = self.channel.send("")
+        output = self.channel.send(self.empty_val)
         self.assertEqual(output, self.expected_no_input)
 
     def test_empty_list(self):

@@ -29,17 +29,8 @@ def sum_channel():
     return memoryless_channel(_sum)
 
 
-@multi_input_channel(sum_channel)
 @start
-def moving_average_channel(n, initial_values = [], operation = identity, zero_val=0):
-    """Returns a generator that returns the moving average over n elements preceeding its input.
-    
-    Keyword arguments:
-    
-    initial_values -- At most n default values for the first iterations (default empty)
-    operation -- a function that operates on the inputs to the generator (default identity)
-    
-    """ 
+def _single_input_moving_average_channel(n, initial_values = [], operation = identity, zero_val=0):
     init = list(initial_values)
     init_value_count = len(init)
     if init_value_count > n:
@@ -48,10 +39,24 @@ def moving_average_channel(n, initial_values = [], operation = identity, zero_va
     buffer_ = init + [zero_val] * (n - init_value_count)
     count = 0
     while True:
-        input_ = operation((yield mean(buffer_)))
+        input_ = operation((yield mean(buffer_, axis=0)))
         
         buffer_[count] = input_
         count = (count + 1) % n
+
+
+@multi_input_channel(sum_channel)
+def moving_average_channel(n, initial_values = [], operation = identity, zero_val=0):
+    """Returns a generator that returns the moving average over n elements preceeding its input.
+    
+    Keyword arguments:
+    
+    initial_values -- At most n default values for the first iterations (default empty)
+    operation -- a function that operates on the inputs to the generator (default identity)
+    zero_value -- zero like value used to initialize the channel
+    
+    """ 
+    return _single_input_moving_average_channel(n, initial_values, operation, zero_val)
 
 
 def _inverse(value):

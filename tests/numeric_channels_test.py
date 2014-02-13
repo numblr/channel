@@ -11,6 +11,7 @@ class SumTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase
         self.expected_single_input = 1
         self.expected_tuple_input = 6
         self.expected_no_input = 0
+        self.empty_val = 0
 
 class InverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTestCase):
     def setUp(self):
@@ -20,6 +21,7 @@ class InverseTestCase(TestCase, ChannelTestCase, NoInputTestCase, MemorylessTest
         self.expected_single_input = -1
         self.expected_tuple_input = -6
         self.expected_no_input = 0
+        self.empty_val = 0
 
 class MovingAverageTestCase(TestCase, ChannelTestCase, NoInputTestCase):
     def setUp(self):
@@ -29,6 +31,7 @@ class MovingAverageTestCase(TestCase, ChannelTestCase, NoInputTestCase):
         self.expected_single_input = 2
         self.expected_tuple_input = 5
         self.expected_no_input = 0
+        self.empty_val = 0
     
     def testAverage(self):
         averages_input = (self.channel.send(i) for i in range(4, 25, 4))
@@ -40,30 +43,6 @@ class MovingAverageTestCase(TestCase, ChannelTestCase, NoInputTestCase):
         self.assertSequenceEqual(expected, all_averages)
 
 
-#class DelayTestCase(TestCase, ChannelTestCase):
-#    def setUp(self):
-#        self.channel = delay_channel()
-#        self.expected_string_input = DELAY_INITIAL
-#        self.expected_tuple_input = DELAY_INITIAL
-#        self.expected_no_input = DELAY_INITIAL
-#
-#    def test_consecutive_process(self):
-#        input_ = ("t", "e", "s", "t", "", "", "", "")
-#        expected = (DELAY_INITIAL, "t", "e", "s", "t", "", "", "")
-#        
-#        self.__test_consecutive_process(input_, expected)
-#
-#    def __test_consecutive_process_multiple(self):
-#        input_ = (("o", "n", "e"), ("t", "w", "o"), ("t", "h", "r", "e", "e"), (), (), (), ())
-#        expected = (DELAY_INITIAL, "one", "two", "three", "", "", "")
-#        
-#        self.__test_consecutive_process(input_, expected)
-#        
-#    def __test_consecutive_process(self, input_, expected):
-#        for input_value, expected_output in zip(input_, expected):
-#            output = self.channel.send(input_value)
-#            self.assertEquals(output, expected_output)
-#
 #class HelperFunctionsTestCase(TestCase):
 #    def test_None_values(self):
 #        channel = memoryless_channel()
