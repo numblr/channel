@@ -1,12 +1,11 @@
-"""Channels that process string input.
+"""Channels that process numeric input.
 
-All channels accept either a single string or a sequence of strings as input.
-The output maybe truncated if it becomes unreasonably large.
+All channels accept either a single number or a sequence of numbers as input.
+The output maybe bounded if it becomes unreasonably large.
 
-sum_channel -- outputs the concatenate the strings in the input
-delay_channel -- outputs the previous summed input strings 
-echo channel -- outputs the summed input concatenated with itself
-reverse_channel -- outputs the reverse summed input
+sum_channel -- outputs the sum of the input
+moving_average_channel - outputs the moving average over a given number of inputs
+inverse_channel -- outputs the negative of the summed input
 process_sequence -- helper function to process a sequence of inputs on a channel
 
 See also modular.channels.channels
@@ -26,7 +25,7 @@ def _sum(value):
         return value
 
 def sum_channel():
-    """Returns an initialized generator that outputs the concatenated strings in the input."""
+    """Returns an initialized generator that outputs the sum over the input."""
     return memoryless_channel(_sum)
 
 
