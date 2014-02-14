@@ -40,7 +40,7 @@ def moving_average_channel(n, initial_values = (), operation = identity, zero_va
     
     initial_values -- At most n default values for the first iterations (default empty)
     operation -- a function that operates on the inputs to the generator (default identity)
-    zero_value -- zero like value used to initialize the channel
+    zero_value -- zero like value used to initialize the channel (default = 0)
     
     """
     def array_operation(array):
@@ -61,5 +61,9 @@ def process_sequence(channel, input_sequence, zero_val=tuple):
     with the elements from the input sequence followed by an infinte sequence of zeros.
     None values in the output are converted to zeros.
     
+    Keyword arguments:
+    
+    zero_val -- A function creating zero inputs for the channel (default = tuple)
+                The created values must not be None. 
     """
-    return process(channel, input_sequence, iter(zero_val, None), 0)#"infinite generator of zeros")))
+    return process(channel, input_sequence, iter(zero_val, None), zero_val())#"infinite generator of zeros")))
