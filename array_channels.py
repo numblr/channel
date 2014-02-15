@@ -20,10 +20,10 @@ import numpy as np
 def _sum(value):
     if value is None:
         raise TypeError("NoneType")
-    np_value = np.array([v for v in value])
-    if len(np_value.shape) < 2 or np_value.shape[1] == 0:
+    value = np.asarray([v for v in value])
+    if len(value.shape) < 2 or value.shape[1] == 0:
         return value
-    return np.sum(np_value, axis=0)
+    return np.sum(value, axis=0)
 
 def sum_channel():
     """Returns an initialized generator that outputs the sum over the input."""
