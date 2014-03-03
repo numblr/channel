@@ -14,7 +14,8 @@ See also modular.channels.channels
 from .channels import memoryless_channel, multi_input_channel
 from .channels import process_sequence as process
 from ._util import identity, start
-from numpy import mean
+import numpy as np
+
 
 def _sum(value):
     if value is None:
@@ -36,12 +37,15 @@ def _single_input_moving_average_channel(n, initial_values = [], operation = ide
     if init_value_count > n:
         raise ValueError("There can be at most {0} initial values: {1} where given ".format(n, len(initial_values)))
     
-    buffer_ = init + [zero_val] * (n - init_value_count)
+    buffer = init + [zero_val] * (n - init_value_count)
     count = 0
+    mean = np.mean(buffer, axis=0)
     while True:
-        input_ = operation((yield mean(buffer_, axis=0)))
+        input_ = operation((yield mean))
         
-        buffer_[count] = input_
+        mean = mean + (input_ - buffer[count]) / n
+        
+        buffer[count] = input_
         count = (count + 1) % n
 
 

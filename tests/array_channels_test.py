@@ -72,10 +72,9 @@ class MovingAverageTestCase(TestCase, ChannelTestCase, NoInputTestCase):
     
     def testAverage(self):
         input_arrays = np.ones((3, 6)) * np.array([i for i in range(4, 25, 4)])
-        print(input_arrays)
         averages_input = [self.channel.send(i) for i in input_arrays.T]
         averages_zeros = [self.channel.send(i) for i in np.zeros((5, 3))]
-
+        
         expected_avg_input = (np.ones((3)) * 1.0, \
                               np.ones((3)) * 3.0, \
                               np.ones((3)) * 6.0, \
@@ -88,7 +87,7 @@ class MovingAverageTestCase(TestCase, ChannelTestCase, NoInputTestCase):
                               np.ones((3)) * 6.0, \
                               np.ones((3)) * 0.0, \
                               np.ones((3)) * 0.0)
-
+        
         assert_array_equal(expected_avg_input, averages_input)
         assert_array_equal(expected_avg_zeros, averages_zeros)
         

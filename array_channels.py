@@ -44,7 +44,7 @@ def moving_average_channel(n, initial_values = (), operation = identity, zero_va
     
     """
     def array_operation(array):
-        np_array = np.array([i for i in array])
+        np_array = np.asarray(array)
         
         return operation(np_array)
 
