@@ -1,7 +1,7 @@
 channel
 =======
 
-Signal processing channels based on generator functions.
+Signal processing channels based on generators.
 
 
 This repository provides generator functions that create an initalized generator for
